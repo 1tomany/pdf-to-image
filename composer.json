@@ -10,7 +10,9 @@
         "pdftoppm"
     ],
     "require": {
-        "php": ">=8.4"
+        "php": ">=8.4",
+        "symfony/filesystem": "^7.2",
+        "symfony/process": "^7.2"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
