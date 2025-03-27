@@ -13,7 +13,7 @@ final readonly class MockRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterizedFile
     {
-
+        throw new \RuntimeException('Not implemented!');
     }
 
 }
