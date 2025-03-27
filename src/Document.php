@@ -2,6 +2,8 @@
 
 namespace OneToMany\PdfToImage;
 
+use OneToMany\PdfToImage\Record\LocalFile;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -18,14 +20,17 @@ class Document
 
     public function __construct()
     {
-        $this->filesystem = new Filesystem();
+        // $this->filesystem = new Filesystem();
+        // $this->imageFormats = [
+        //     'jpg' => '-jpeg',
+        //     'jpeg' => '-jpeg',
+        //     'png' => '-png',
+        //     'tiff' => '-tiff',
+        // ];
+    }
 
-        $this->imageFormats = [
-            'jpg' => '-jpeg',
-            'jpeg' => '-jpeg',
-            'png' => '-png',
-            'tiff' => '-tiff',
-        ];
+    public static function rasterize(string $documentPath, ?Rasterizer $rasterizer = null): LocalFile
+    {
     }
 
     public function setConverter(string $converter): self
@@ -57,7 +62,7 @@ class Document
         return $this;
     }
 
-    public function doStuff(?string $outputFilePath = null): void
+    public function doStuff(string $inputFilePath, ?string $outputFilePath = null): void
     {
         try {
             $binaryPath = new ExecutableFinder()->find($this->converter);
@@ -79,7 +84,7 @@ class Document
                 '-singlefile', // single page
                 '-r',          // resolution
                 $this->resolution, // dots per inch
-                $record->path  // path to file
+                $inputFilePath  // path to file
             ]);
 
             $data = $process->mustRun()->getOutput();
