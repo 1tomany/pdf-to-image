@@ -2,6 +2,10 @@
 
 namespace OneToMany\PdfToImage;
 
+use OneToMany\PdfToImage\Contract\OutputFormat;
+use OneToMany\PdfToImage\Exception\InvalidArgumentException;
+use OneToMany\PdfToImage\Exception\RasterizationFailedException;
+use OneToMany\PdfToImage\Exception\RasterizerBinaryNotFoundException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Record\RasterizedFile;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
@@ -17,7 +21,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
     private Filesystem $filesystem;
 
-    public function __construct(private string $converterPath = 'pdftoppm')
+    public function __construct(private string $rasterizerPath = 'pdftoppm')
     {
         $this->filesystem = new Filesystem();
     }
@@ -28,35 +32,29 @@ final readonly class PopplerRasterService implements RasterServiceInterface
     public function rasterize(RasterizeFileRequest $request): RasterizedFile
     {
         try {
-            if ($this->filesystem->exists($this->converterPath)) {
-                $converterPath = $this->converterPath;
+            if ($this->filesystem->exists($this->rasterizerPath)) {
+                $rasterizerPath = $this->rasterizerPath;
             } else {
-                $converterPath = new ExecutableFinder()->find($this->converterPath);
+                $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
 
-                if (null === $converterPath) {
-                    throw new \RuntimeException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->converterPath));
+                if (null === $rasterizerPath) {
+                    throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
                 }
             }
 
-            if (!@is_executable($converterPath)) {
-                throw new \RuntimeException(sprintf('the binary "%s" is not executable', $converterPath));
+            if (!@is_executable($rasterizerPath)) {
+                throw new InvalidArgumentException(sprintf('the binary "%s" is not executable', $rasterizerPath));
             }
 
-            if (!$this->filesystem->exists($request->inputPath)) {
-                throw new \RuntimeException('no readable file path');
-            }
-
-            // $imageFormat = $this->imageFormats[
-            //     $this->imageFormat
-            // ];
+            $imageFormat = $this->resolveImageFormat(...[
+                'format' => $request->format,
+            ]);
 
             $process = new Process([
-                $converterPath,
+                $rasterizerPath,
                 '-q',                 // quiet mode
-                '-jpeg',              // image format
-                '-f',                 // first page
-                '1',                  // page number
-                '-singlefile',        // single page
+                '-singlefile',        // first page
+                $imageFormat,         // image format
                 '-r',                 // resolution
                 $request->resolution, // dots per inch
                 $request->inputPath,  // path to file
@@ -64,22 +62,34 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
             $data = $process->mustRun()->getOutput();
 
-            $request->outputPath ??= $this->filesystem->tempnam(
-                sys_get_temp_dir(), '__1n__raster_'
+            $outputPath = $request->outputPath ?? $this->filesystem->tempnam(
+                sys_get_temp_dir(), '__1n__raster_', $request->format->suffix(),
             );
 
             $this->filesystem->dumpFile(
-                $request->outputPath, $data
+                $outputPath, $data
             );
         } catch (\Exception $e) {
             $this->safelyCleanupFiles(...[
-                'path' => $request->outputPath,
+                'path' => $outputPath,
             ]);
 
-            throw new \Exception('no good convert');
+            throw new RasterizationFailedException(path: $request->inputPath, previous: $e);
         }
 
-        return new RasterizedFile($request->outputPath);
+        return new RasterizedFile($outputPath);
+    }
+
+    private function resolveImageFormat(OutputFormat $format): string
+    {
+        $imageFormat = match($format) {
+            OutputFormat::Jpg => '-jpeg',
+            OutputFormat::Jpeg => '-jpeg',
+            OutputFormat::Png => '-png',
+            OutputFormat::Tiff => '-tiff',
+        };
+
+        return $imageFormat;
     }
 
     private function safelyCleanupFiles(?string $path): void
