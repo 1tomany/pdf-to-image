@@ -5,7 +5,6 @@ namespace OneToMany\PdfToImage;
 use OneToMany\PdfToImage\Contract\OutputFormat;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
-use OneToMany\PdfToImage\Exception\RasterizerBinaryNotFoundException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Record\RasterizedFile;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
@@ -31,19 +30,21 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterizedFile
     {
+        $outputPath = null;
+
         try {
             if ($this->filesystem->exists($this->rasterizerPath)) {
                 $rasterizerPath = $this->rasterizerPath;
             } else {
                 $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
 
-                if (null === $rasterizerPath) {
+                if (!$rasterizerPath) {
                     throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
                 }
             }
 
             if (!@is_executable($rasterizerPath)) {
-                throw new InvalidArgumentException(sprintf('the binary "%s" is not executable', $rasterizerPath));
+                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
             }
 
             $imageFormat = $this->resolveImageFormat(...[
@@ -70,11 +71,9 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 $outputPath, $data
             );
         } catch (\Exception $e) {
-            if (true === isset($outputPath)) {
-                $this->safelyCleanupFiles(...[
-                    'path' => $outputPath,
-                ]);
-            }
+            $this->safelyCleanupFiles(...[
+                'path' => $outputPath,
+            ]);
 
             throw new RasterizationFailedException(path: $request->inputPath, previous: $e);
         }
