@@ -1,13 +1,14 @@
 {
     "name": "1tomany/pdf-to-image",
-    "description": "A simple library that converts the pages of a PDF to an image.",
+    "description": "A simple library that converts a PDF to an image using the xpdf and Poppler libraries.",
     "license": "MIT",
     "type": "library",
     "minimum-stability": "stable",
     "keywords": [
         "pdf",
         "poppler",
-        "pdftoppm"
+        "pdftoppm",
+        "xpdf"
     ],
     "require": {
         "php": ">=8.4",
