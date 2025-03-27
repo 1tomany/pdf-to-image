@@ -6,9 +6,9 @@ More to come.
 composer require 1tomany/pdf-to-image
 ```
 
-## Testing
+## Static Analysis
 ``` bash
-./vendor/bin/phpunit
+./vendor/bin/phpstan
 ```
 
 ## Credits

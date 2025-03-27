@@ -70,9 +70,11 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 $outputPath, $data
             );
         } catch (\Exception $e) {
-            $this->safelyCleanupFiles(...[
-                'path' => $outputPath,
-            ]);
+            if (true === isset($outputPath)) {
+                $this->safelyCleanupFiles(...[
+                    'path' => $outputPath,
+                ]);
+            }
 
             throw new RasterizationFailedException(path: $request->inputPath, previous: $e);
         }

@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=8.4",
+        "psr/container": "^2.0",
         "symfony/filesystem": "^7.2",
         "symfony/process": "^7.2"
     },
