@@ -38,13 +38,13 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             } else {
                 $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
 
-                if (!$rasterizerPath) {
+                if (null === $rasterizerPath) {
                     throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
                 }
             }
 
             if (!@is_executable($rasterizerPath)) {
-                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
+                throw new InvalidArgumentException(sprintf('the binary "%s" is not executable', $rasterizerPath));
             }
 
             $imageFormat = $this->resolveImageFormat(...[
