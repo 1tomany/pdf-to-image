@@ -43,8 +43,8 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 }
             }
 
-            if (!@is_executable($rasterizerPath)) {
-                throw new InvalidArgumentException(sprintf('the binary "%s" is not executable', $rasterizerPath));
+            if (!is_executable($rasterizerPath)) {
+                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
             }
 
             $imageFormat = $this->resolveImageFormat(...[
