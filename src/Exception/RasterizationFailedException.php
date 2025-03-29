@@ -2,12 +2,14 @@
 
 namespace OneToMany\PdfToImage\Exception;
 
+use function sprintf;
+
 final class RasterizationFailedException extends \RuntimeException implements ExceptionInterface
 {
 
-    public function __construct(string $path, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $file, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('An error occurred when attempting to rasterize the file "%s".', $path), $code, $previous);
+        parent::__construct(sprintf('An error occurred when attempting to rasterize the file "%s".', $file), 0, $previous);
     }
 
 }
