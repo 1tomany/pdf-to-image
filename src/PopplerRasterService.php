@@ -13,8 +13,8 @@ use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 
-use function is_executable;
-use function sys_get_temp_dir;
+// use function is_executable;
+// use function sys_get_temp_dir;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
@@ -31,8 +31,6 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterizedFile
     {
-        // $outputPath = null;
-
         if ($this->filesystem->exists($this->rasterizerPath)) {
             $rasterizerPath = $this->rasterizerPath;
         } else {
@@ -43,9 +41,9 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             }
         }
 
-        if (!is_executable($rasterizerPath)) {
-            throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
-        }
+        // if (!is_executable($rasterizerPath)) {
+        //     throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
+        // }
 
         try {
             $imageFormat = $this->resolveImageFormat(...[
@@ -99,6 +97,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         return $imageFormat;
     }
 
+    /*
     private function safelyCleanupFiles(?string $path): void
     {
         if (!$path) {
@@ -111,5 +110,6 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             }
         } catch (IOExceptionInterface $e) { }
     }
+    */
 
 }
