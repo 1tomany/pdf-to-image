@@ -38,17 +38,17 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         try {
             // Construct the pdftoppm Conversion Command
             $command = vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
-                $rasterizerPath, '${:RESOLUTION}', '${:INPUT_FILE}',
+                $rasterizerPath, '${:RESOLUTION}', '${:FILE_PATH}',
             ]);
 
             $process = Process::fromShellCommandline($command)->mustRun(null, [
                 'RESOLUTION' => $request->resolution,
-                'INPUT_FILE' => $request->inputFile,
+                'FILE_PATH' => $request->filePath,
             ]);
 
             $data = $process->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new RasterizationFailedException($request->inputFile, $e);
+            throw new RasterizationFailedException($request->filePath, $e);
         }
 
         return new RasterData('image/jpeg', $data);

@@ -20,7 +20,7 @@ final readonly class RasterData implements \Stringable
         return $this->binaryData;
     }
 
-    public function toDataUri(): string
+    public function asUri(): string
     {
         return sprintf('data:%s;base64,%s', $this->mediaType, base64_encode($this->binaryData));
     }

@@ -8,12 +8,12 @@ final readonly class RasterizeFileRequest
 {
 
     public function __construct(
-        public string $inputFile,
+        public string $filePath,
         public int $resolution = 300,
     )
     {
-        if (!is_file($this->inputFile) || !is_readable($this->inputFile)) {
-            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->inputFile));
+        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
+            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
         }
     }
 
