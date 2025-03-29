@@ -2,13 +2,25 @@
 
 namespace OneToMany\PdfToImage\Contract;
 
-enum OutputFormat: string
+enum OutputFormat
 {
 
-    case Jpg = 'jpg';
-    case Jpeg = 'jpeg';
-    case Png = 'png';
-    case Tiff = 'tiff';
+    case Jpg;
+    case Jpeg;
+    case Png;
+    case Tiff;
+
+    public function mediaType(): string
+    {
+        $suffix = match($this) {
+            static::Jpg => 'image/jpeg',
+            static::Jpeg => 'image/jpeg',
+            static::Png => 'image/png',
+            static::Tiff => 'image/tiff',
+        };
+
+        return $suffix;
+    }
 
     public function suffix(): string
     {

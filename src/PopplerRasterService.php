@@ -11,6 +11,7 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 
 use function is_executable;
 use function sys_get_temp_dir;
@@ -30,39 +31,43 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterizedFile
     {
-        $outputPath = null;
+        // $outputPath = null;
+
+        if ($this->filesystem->exists($this->rasterizerPath)) {
+            $rasterizerPath = $this->rasterizerPath;
+        } else {
+            $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
+
+            if (null === $rasterizerPath) {
+                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
+            }
+        }
+
+        if (!is_executable($rasterizerPath)) {
+            throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
+        }
 
         try {
-            if ($this->filesystem->exists($this->rasterizerPath)) {
-                $rasterizerPath = $this->rasterizerPath;
-            } else {
-                $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
-
-                if (null === $rasterizerPath) {
-                    throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
-                }
-            }
-
-            if (!is_executable($rasterizerPath)) {
-                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" is not executable.', $rasterizerPath));
-            }
-
             $imageFormat = $this->resolveImageFormat(...[
                 'format' => $request->format,
             ]);
 
-            $process = new Process([
-                $rasterizerPath,
-                '-q',                 // quiet mode
-                '-singlefile',        // first page
-                $imageFormat,         // image format
-                '-r',                 // resolution
-                $request->resolution, // dots per inch
-                $request->inputPath,  // path to file
+            $process = Process::fromShellCommandline($rasterizerPath . ' -q -singlefile "${:IMAGE_FORMAT}" -r "${:RESOLUTION}" "${:FILE}"');
+
+            $process->mustRun(null, [
+                'IMAGE_FORMAT' => $imageFormat,
+                'RESOLUTION' => $request->resolution,
+                'FILE' => $request->inputPath,
             ]);
 
-            $data = $process->mustRun()->getOutput();
+            $data = $process->getOutput();
+        } catch (ProcessExceptionInterface $e) {
+            throw new RasterizationFailedException(path: $request->inputPath, previous: $e);
+        }
 
+        return new RasterizedFile($data);
+
+            /*
             $outputPath = $request->outputPath ?? $this->filesystem->tempnam(
                 sys_get_temp_dir(), '__1n__raster_', $request->format->suffix(),
             );
@@ -70,15 +75,16 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             $this->filesystem->dumpFile(
                 $outputPath, $data
             );
-        } catch (\Exception $e) {
-            $this->safelyCleanupFiles(...[
-                'path' => $outputPath,
-            ]);
+            */
+        // } catch (\Exception $e) {
+        //     $this->safelyCleanupFiles(...[
+        //         'path' => $outputPath,
+        //     ]);
 
-            throw new RasterizationFailedException(path: $request->inputPath, previous: $e);
-        }
 
-        return new RasterizedFile($outputPath);
+        // }
+
+        // return new RasterizedFile($outputPath);
     }
 
     private function resolveImageFormat(OutputFormat $format): string
