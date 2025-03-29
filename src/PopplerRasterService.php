@@ -5,7 +5,7 @@ namespace OneToMany\PdfToImage;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
-use OneToMany\PdfToImage\Record\RasterizedFile;
+use OneToMany\PdfToImage\Record\RasterData;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
@@ -23,7 +23,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
     /**
      * @see OneToMany\PdfToImage\RasterServiceInterface
      */
-    public function rasterize(RasterizeFileRequest $request): RasterizedFile
+    public function rasterize(RasterizeFileRequest $request): RasterData
     {
         if (is_executable($this->rasterizerPath)) {
             $rasterizerPath = $this->rasterizerPath;
@@ -51,7 +51,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             throw new RasterizationFailedException($request->inputFile, $e);
         }
 
-        return new RasterizedFile(sprintf('data:image/jpeg;base64,%s', base64_encode($data)));
+        return new RasterData('image/jpeg', $data);
     }
 
 }
