@@ -12,6 +12,7 @@ use Symfony\Component\Process\Process;
 
 use function is_executable;
 use function sprintf;
+use function vsprintf;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
@@ -36,7 +37,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
         try {
             // Construct the pdftoppm Conversion Command
-            $command = \vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
+            $command = vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
                 $rasterizerPath, '${:RESOLUTION}', '${:FILE_PATH}',
             ]);
 

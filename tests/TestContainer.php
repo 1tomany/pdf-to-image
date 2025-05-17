@@ -3,7 +3,6 @@
 namespace OneToMany\PdfToImage\Tests;
 
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
-use OneToMany\PdfToImage\Record\RasterData;
 use OneToMany\PdfToImage\Service\MockRasterService;
 use Psr\Container\ContainerInterface;
 
