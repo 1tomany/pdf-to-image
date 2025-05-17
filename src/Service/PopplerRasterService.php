@@ -16,8 +16,14 @@ use function vsprintf;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
-    public function __construct(private string $rasterizerPath = 'pdftoppm')
+    private ExecutableFinder $finder;
+
+    public function __construct(
+        private string $pdfinfoBinary = 'pdfinfo',
+        private string $pdftoppmBinary = 'pdftoppm',
+    )
     {
+        $this->finder = new ExecutableFinder();
     }
 
     /**
@@ -25,20 +31,18 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterData
     {
-        if (is_executable($this->rasterizerPath)) {
-            $rasterizerPath = $this->rasterizerPath;
-        } else {
-            $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
+        $pdfInfoBinary = $this->findBinaryPath(...[
+            'popplerBinary' => $this->pdfinfoBinary,
+        ]);
 
-            if (null === $rasterizerPath) {
-                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found.', $this->rasterizerPath));
-            }
-        }
+        $pdfToPpmBinary = $this->findBinaryPath(...[
+            'popplerBinary' => $this->pdftoppmBinary,
+        ]);
 
         try {
             // Construct the pdftoppm Conversion Command
             $command = vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
-                $rasterizerPath, '${:RESOLUTION}', '${:FILE_PATH}',
+                $pdfToPpmBinary, '${:RESOLUTION}', '${:FILE_PATH}',
             ]);
 
             $process = Process::fromShellCommandline($command)->mustRun(null, [
@@ -52,5 +56,18 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         }
 
         return new RasterData('image/jpeg', $data);
+    }
+
+    private function findBinaryPath(string $popplerBinary): string
+    {
+        if (is_executable($popplerBinary)) {
+            return $popplerBinary;
+        }
+
+        if (null === $binary = $this->finder->find($popplerBinary)) {
+            throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found.', $popplerBinary));
+        }
+
+        return $binary;
     }
 }

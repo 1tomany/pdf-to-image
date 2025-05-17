@@ -15,14 +15,24 @@ use function pathinfo;
 #[Group('ServiceTests')]
 final class PopplerRasterServiceTest extends TestCase
 {
-    public function testRasterizationRequiresValidRasterizerPath(): void
+    public function testRasterizationRequiresValidPdfInfoBinary(): void
     {
-        $binary = 'invalid_pdftoppm_binary';
+        $pdfInfoBinary = 'invalid_pdfinfo_binary';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The Poppler binary "'.$binary.'" could not be found.');
+        $this->expectExceptionMessage('The Poppler binary "'.$pdfInfoBinary.'" could not be found.');
 
-        new PopplerRasterService($binary)->rasterize(new RasterizeFileRequest(__FILE__));
+        new PopplerRasterService(pdfinfoBinary: $pdfInfoBinary)->rasterize(new RasterizeFileRequest(__FILE__));
+    }
+
+    public function testRasterizationRequiresValidPdfToPpmBinary(): void
+    {
+        $pdfToPpmBinary = 'invalid_pdftoppm_binary';
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The Poppler binary "'.$pdfToPpmBinary.'" could not be found.');
+
+        new PopplerRasterService(pdftoppmBinary: $pdfToPpmBinary)->rasterize(new RasterizeFileRequest(__FILE__));
     }
 
     public function testRasterizationRequiresValidPdfFile(): void
