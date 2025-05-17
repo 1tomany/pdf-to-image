@@ -3,6 +3,7 @@
 namespace OneToMany\PdfToImage;
 
 use OneToMany\PdfToImage\Exception\InvalidRasterServiceException;
+use OneToMany\PdfToImage\Service\RasterServiceInterface;
 use Psr\Container\ContainerInterface;
 
 final readonly class ServiceFactory

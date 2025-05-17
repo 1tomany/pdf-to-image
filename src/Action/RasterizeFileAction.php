@@ -2,9 +2,9 @@
 
 namespace OneToMany\PdfToImage\Action;
 
-use OneToMany\PdfToImage\RasterServiceInterface;
 use OneToMany\PdfToImage\Record\RasterData;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
+use OneToMany\PdfToImage\Service\RasterServiceInterface;
 
 final readonly class RasterizeFileAction
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace OneToMany\PdfToImage;
+namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
