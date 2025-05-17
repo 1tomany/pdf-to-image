@@ -4,18 +4,17 @@ namespace OneToMany\PdfToImage;
 
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
-use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Record\RasterData;
+use OneToMany\PdfToImage\Request\RasterizeFileRequest;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 
 use function is_executable;
 use function sprintf;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
-
     public function __construct(private string $rasterizerPath = 'pdftoppm')
     {
     }
@@ -31,13 +30,13 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             $rasterizerPath = new ExecutableFinder()->find($this->rasterizerPath);
 
             if (null === $rasterizerPath) {
-                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found in the PATH.', $this->rasterizerPath));
+                throw new InvalidArgumentException(sprintf('The Poppler binary "%s" could not be found.', $this->rasterizerPath));
             }
         }
 
         try {
             // Construct the pdftoppm Conversion Command
-            $command = vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
+            $command = \vsprintf('%s -q -singlefile -jpeg -r "%s" "%s"', [
                 $rasterizerPath, '${:RESOLUTION}', '${:FILE_PATH}',
             ]);
 
@@ -53,5 +52,4 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
         return new RasterData('image/jpeg', $data);
     }
-
 }

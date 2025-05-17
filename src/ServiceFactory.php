@@ -7,7 +7,6 @@ use Psr\Container\ContainerInterface;
 
 final readonly class ServiceFactory
 {
-
     public function __construct(private ContainerInterface $container)
     {
     }
@@ -18,8 +17,12 @@ final readonly class ServiceFactory
             throw new InvalidRasterServiceException($service);
         }
 
-        /** @var RasterServiceInterface */
-        return $this->container->get($service);
-    }
+        $rasterService = $this->container->get($service);
 
+        if (!$rasterService instanceof RasterServiceInterface) {
+            throw new InvalidRasterServiceException($service);
+        }
+
+        return $rasterService;
+    }
 }

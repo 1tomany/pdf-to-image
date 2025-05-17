@@ -7,7 +7,5 @@ use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 
 interface RasterServiceInterface
 {
-
     public function rasterize(RasterizeFileRequest $request): RasterData;
-
 }

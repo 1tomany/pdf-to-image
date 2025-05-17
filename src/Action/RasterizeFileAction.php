@@ -8,7 +8,6 @@ use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 
 final readonly class RasterizeFileAction
 {
-
     public function __construct(private RasterServiceInterface $rasterService)
     {
     }
@@ -17,5 +16,4 @@ final readonly class RasterizeFileAction
     {
         return $this->rasterService->rasterize($request);
     }
-
 }

@@ -2,12 +2,11 @@
 
 namespace OneToMany\PdfToImage;
 
-use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Record\RasterData;
+use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 
 final readonly class MockRasterService implements RasterServiceInterface
 {
-
     /**
      * @see OneToMany\PdfToImage\RasterServiceInterface
      */
@@ -15,5 +14,4 @@ final readonly class MockRasterService implements RasterServiceInterface
     {
         throw new \RuntimeException('Not implemented!');
     }
-
 }

@@ -7,12 +7,10 @@ use function sprintf;
 
 final readonly class RasterData implements \Stringable
 {
-
     public function __construct(
         public string $mediaType,
         public string $binaryData,
-    )
-    {
+    ) {
     }
 
     public function __toString(): string
@@ -20,9 +18,8 @@ final readonly class RasterData implements \Stringable
         return $this->binaryData;
     }
 
-    public function asUri(): string
+    public function toDataUri(): string
     {
         return sprintf('data:%s;base64,%s', $this->mediaType, base64_encode($this->binaryData));
     }
-
 }
