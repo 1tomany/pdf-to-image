@@ -2,6 +2,7 @@
 
 namespace OneToMany\PdfToImage\Request;
 
+use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 
 use function is_file;
@@ -15,7 +16,7 @@ final readonly class RasterizeFileRequest
     public function __construct(
         public string $filePath,
         public int $pageNumber = 1,
-        public int $pageCount = 1,
+        public ImageType $imageType = ImageType::Jpeg,
         public int $resolution = 150,
     ) {
         if (!is_file($this->filePath) || !is_readable($this->filePath)) {
@@ -24,10 +25,6 @@ final readonly class RasterizeFileRequest
 
         if ($this->pageNumber < 1) {
             throw new InvalidArgumentException('The page number must be an integer greater than 0.');
-        }
-
-        if ($this->pageCount < 0) {
-            throw new InvalidArgumentException('The page count must be an integer greater than or equal to 0.');
         }
 
         if ($this->resolution < self::MIN_RESOLUTION || $this->resolution > self::MAX_RESOLUTION) {

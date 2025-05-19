@@ -8,6 +8,12 @@ use Psr\Container\ContainerInterface;
 
 final readonly class TestContainer implements ContainerInterface
 {
+    /**
+     * @var array{
+     *   mock: MockRasterService,
+     *   error: InvalidArgumentException,
+     * }
+     */
     private array $services;
 
     public function __construct()

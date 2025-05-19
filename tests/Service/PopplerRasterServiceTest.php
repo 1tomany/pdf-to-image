@@ -15,16 +15,6 @@ use function pathinfo;
 #[Group('ServiceTests')]
 final class PopplerRasterServiceTest extends TestCase
 {
-    public function testRasterizationRequiresValidPdfInfoBinary(): void
-    {
-        $pdfInfoBinary = 'invalid_pdfinfo_binary';
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The Poppler binary "'.$pdfInfoBinary.'" could not be found.');
-
-        new PopplerRasterService(pdfinfoBinary: $pdfInfoBinary)->rasterize(new RasterizeFileRequest(__FILE__));
-    }
-
     public function testRasterizationRequiresValidPdfToPpmBinary(): void
     {
         $pdfToPpmBinary = 'invalid_pdftoppm_binary';
@@ -40,8 +30,16 @@ final class PopplerRasterServiceTest extends TestCase
         $this->expectException(RasterizationFailedException::class);
 
         $fileInfo = pathinfo($filePath = __FILE__);
-        $this->assertNotEquals('pdf', $fileInfo['extension']);
+        $this->assertNotEquals('pdf', $fileInfo['extension'] ?? null);
 
         new PopplerRasterService()->rasterize(new RasterizeFileRequest($filePath));
+    }
+
+    public function _testRasterizationRequiresValidPageNumber(): void
+    {
+        $filePath = __DIR__.'/files/pages-1.pdf';
+
+        $request = new RasterizeFileRequest($filePath, 10);
+        new PopplerRasterService()->rasterize($request);
     }
 }
