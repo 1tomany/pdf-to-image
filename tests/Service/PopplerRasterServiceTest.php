@@ -73,6 +73,9 @@ final class PopplerRasterServiceTest extends TestCase
         $this->assertEquals($sha1Hash, sha1($data->__toString()));
     }
 
+    /**
+     * @return list<list<int|string|ImageType>>
+     */
     public static function providerFileNameImageTypeResolutionAndSha1Hash(): array
     {
         $provider = [
