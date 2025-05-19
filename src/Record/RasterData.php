@@ -8,18 +8,18 @@ use function sprintf;
 final readonly class RasterData implements \Stringable
 {
     public function __construct(
-        public string $type,
-        public string $data,
+        public string $mimeType,
+        public string $dataBytes,
     ) {
     }
 
     public function __toString(): string
     {
-        return $this->data;
+        return $this->dataBytes;
     }
 
     public function toDataUri(): string
     {
-        return sprintf('data:%s;base64,%s', $this->type, base64_encode($this->data));
+        return sprintf('data:%s;base64,%s', $this->mimeType, base64_encode($this->dataBytes));
     }
 }

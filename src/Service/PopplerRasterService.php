@@ -5,6 +5,7 @@ namespace OneToMany\PdfToImage\Service;
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
+use OneToMany\PdfToImage\Exception\RuntimeException;
 use OneToMany\PdfToImage\Record\RasterData;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
@@ -13,16 +14,13 @@ use Symfony\Component\Process\Process;
 
 use function is_executable;
 use function sprintf;
-use function vsprintf;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
     private ExecutableFinder $finder;
 
-    public function __construct(
-        // private string $pdfinfoBinary = 'pdfinfo',
-        private string $pdftoppmBinary = 'pdftoppm',
-    ) {
+    public function __construct(private string $pdftoppmBinary = 'pdftoppm')
+    {
         $this->finder = new ExecutableFinder();
     }
 
@@ -31,33 +29,42 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterData
     {
+        // Resolve the `pdftoppm` Binary Path
         $pdfToPpmBinary = $this->findBinaryPath(...[
             'popplerBinary' => $this->pdftoppmBinary,
         ]);
 
+        // Construct the `pdftoppm` Command
+        $imageTypeArgument = $this->resolveImageType(...[
+            'imageType' => $request->imageType,
+        ]);
+
+        $shellCommandLine = vsprintf('%s -q -f "%s" "%s" -r "%s" "%s"', [
+            $pdfToPpmBinary, '${:PAGE}', '${:TYPE}', '${:RES}', '${:PATH}',
+        ]);
+
         try {
-            // Construct the pdftoppm Conversion Command
-            $imageType = match ($request->imageType) {
-                ImageType::Jpeg => '-jpeg',
-                ImageType::Png => '-png',
-                ImageType::Tiff => '-tiff',
-            };
-
-            $command = \sprintf('%s -q -f "${:PAGENUMBER}" -l "${:PAGENUMBER}" "${:IMAGETYPE}" -r "${:RESOLUTION}" "${:FILEPATH}"', $pdfToPpmBinary);
-
-            $process = Process::fromShellCommandline($command)->mustRun(null, [
-                'PAGENUMBER' => $request->pageNumber,
-                'IMAGETYPE' => $imageType,
-                'RESOLUTION' => $request->resolution,
-                'FILEPATH' => $request->filePath,
+            $process = Process::fromShellCommandline(...[
+                'command' => $shellCommandLine,
             ]);
-
-            $data = $process->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new RasterizationFailedException($request->filePath, $e);
+            throw new RuntimeException('The Poppler binary "%s" could not be executed because PHP was not compiled with the "proc_open()" function.', $e);
         }
 
-        return new RasterData($request->imageType->mimeType(), $data);
+        try {
+            $process->mustRun(null, [
+                'PAGE' => $request->pageNumber,
+                'TYPE' => $imageTypeArgument,
+                'RES' => $request->resolution,
+                'PATH' => $request->filePath,
+            ]);
+
+            $image = $process->getOutput();
+        } catch (ProcessExceptionInterface $e) {
+            throw new RasterizationFailedException($request->filePath, $process->getErrorOutput(), $e);
+        }
+
+        return new RasterData($request->imageType->mimeType(), $image);
     }
 
     private function findBinaryPath(string $popplerBinary): string
@@ -71,5 +78,15 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         }
 
         return $binary;
+    }
+
+    private function resolveImageType(ImageType $imageType): string
+    {
+        $imageType = match ($imageType) {
+            ImageType::Jpeg => '-jpeg',
+            ImageType::Png => '-png',
+        };
+
+        return $imageType;
     }
 }
