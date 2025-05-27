@@ -21,14 +21,14 @@ use function sha1;
 #[Group('ServiceTests')]
 final class PopplerRasterServiceTest extends TestCase
 {
-    public function testRasterizationRequiresValidPdfToPpmBinary(): void
+    public function testConstructorRequiresValidPdfToPpmBinary(): void
     {
-        $pdfToPpmBinary = 'invalid_pdftoppm_binary';
+        $binary = 'invalid_pdftoppm_binary';
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The Poppler binary "'.$pdfToPpmBinary.'" could not be found.');
+        $this->expectExceptionMessage('The binary "'.$binary.'" could not be found.');
 
-        new PopplerRasterService(pdftoppmBinary: $pdfToPpmBinary)->rasterize(new RasterizeFileRequest(__FILE__));
+        new PopplerRasterService($binary);
     }
 
     public function testRasterizationRequiresValidPdfFile(): void
