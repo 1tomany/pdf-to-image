@@ -6,8 +6,8 @@ use function sprintf;
 
 final class ReadingPdfInfoFailedException extends BinaryProcessFailedException
 {
-    public function __construct(string $file, ?string $error = null, ?\Throwable $previous = null, int $code = 0)
+    public function __construct(string $file, ?string $error = null, ?\Throwable $previous = null)
     {
-        parent::__construct(sprintf('An error occurred when attempting to read the info for file "%s".', $file), $error, $previous, $code);
+        parent::__construct(sprintf('An error occurred when attempting to read the info for file "%s".', $file), $error, $previous);
     }
 }

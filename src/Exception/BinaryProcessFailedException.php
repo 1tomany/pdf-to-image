@@ -9,10 +9,10 @@ use function trim;
 
 class BinaryProcessFailedException extends RuntimeException
 {
-    public function __construct(string $message, ?string $error = null, ?\Throwable $previous = null, int $code = 0)
+    public function __construct(string $message, ?string $error = null, ?\Throwable $previous = null)
     {
         $error = trim(explode("\n", $error ?? '')[0]) ?: null;
 
-        parent::__construct(null === $error ? $message : sprintf('%s: %s.', rtrim($message, '.'), rtrim($error, '.')), $previous, $code);
+        parent::__construct(null === $error ? $message : sprintf('%s: %s.', rtrim($message, '.'), rtrim($error, '.')), previous: $previous);
     }
 }
