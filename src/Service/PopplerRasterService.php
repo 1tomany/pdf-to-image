@@ -37,7 +37,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 '-f',
                 $request->page,
                 '-r',
-                $request->dpi,
+                $request->resolution,
                 $imageTypeArgument,
                 $request->file,
             ]);

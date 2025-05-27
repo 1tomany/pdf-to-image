@@ -52,13 +52,19 @@ final class PopplerRasterServiceTest extends TestCase
         new PopplerRasterService()->rasterize(new RasterizeFileRequest($filePath, $pageNumber));
     }
 
-    #[DataProvider('providerFilePageTypeDpiAndSha1Hash')]
-    public function testRasterizingFirstPage(string $file, int $page, ImageType $type, int $dpi, string $sha1): void
+    #[DataProvider('providerFilePageTypeResolutionAndSha1Hash')]
+    public function testRasterizingFirstPage(
+        string $file,
+        int $page,
+        ImageType $type,
+        int $resolution,
+        string $sha1,
+    ): void
     {
         $file = __DIR__.'/files/'.$file;
 
         $request = new RasterizeFileRequest(
-            $file, $page, $type, $dpi
+            $file, $page, $type, $resolution
         );
 
         $data = new PopplerRasterService()->rasterize($request);
@@ -68,7 +74,7 @@ final class PopplerRasterServiceTest extends TestCase
     /**
      * @return list<list<int|string|ImageType>>
      */
-    public static function providerFilePageTypeDpiAndSha1Hash(): array
+    public static function providerFilePageTypeResolutionAndSha1Hash(): array
     {
         $provider = [
             ['pages-1.pdf', 1, ImageType::Jpeg, 150, 'bfbfea39b881befa7e0af249f4fff08592d1ff56'],

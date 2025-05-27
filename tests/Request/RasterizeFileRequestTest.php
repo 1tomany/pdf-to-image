@@ -40,7 +40,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(file: __FILE__, dpi: random_int(1, 47));
+        new RasterizeFileRequest(file: __FILE__, resolution: random_int(1, 47));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMaximumResolution(): void
@@ -48,26 +48,26 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(file: __FILE__, dpi: random_int(301, PHP_INT_MAX));
+        new RasterizeFileRequest(file: __FILE__, resolution: random_int(301, PHP_INT_MAX));
     }
 
     public function testConstructor(): void
     {
         $file = __FILE__;
         $page = random_int(1, 100);
-        $dpi = random_int(48, 300);
+        $resolution = random_int(48, 300);
 
         $type = ImageType::cases()[
             array_rand(ImageType::cases())
         ];
 
         $request = new RasterizeFileRequest(
-            $file, $page, $type, $dpi
+            $file, $page, $type, $resolution
         );
 
         $this->assertEquals($file, $request->file);
         $this->assertEquals($page, $request->page);
         $this->assertSame($type, $request->type);
-        $this->assertEquals($dpi, $request->dpi);
+        $this->assertEquals($resolution, $request->resolution);
     }
 }
