@@ -5,6 +5,7 @@ namespace OneToMany\PdfToImage\Tests\Request;
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -18,12 +19,13 @@ final class RasterizeFileRequestTest extends TestCase
 {
     public function testConstructorRequiresReadableFile(): void
     {
-        $file = __DIR__;
+        $filePath = __DIR__.'/invalid.file.path';
+        $this->assertFileDoesNotExist($filePath);
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The input file "'.$file.'" does not exist or is not readable.');
+        $this->expectExceptionMessage('The input file "'.$filePath.'" does not exist or is not readable.');
 
-        new RasterizeFileRequest($file);
+        new RasterizeFileRequest($filePath);
     }
 
     public function testConstructorRequiresPositivePageNumber(): void
@@ -50,12 +52,14 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(301, PHP_INT_MAX));
     }
 
-    public function testConstructor(): void
+    #[DataProvider('providerFilePathAndPage')]
+    public function testConstructor(string $filePath, int $page): void
     {
-        $filePath = __FILE__;
-        $page = random_int(1, 100);
+        $type = ImageType::cases()[
+            \array_rand(ImageType::cases())
+        ];
+
         $resolution = random_int(48, 300);
-        $type = ImageType::Jpeg;
 
         $request = new RasterizeFileRequest(
             $filePath, $page, $type, $resolution
@@ -65,5 +69,17 @@ final class RasterizeFileRequestTest extends TestCase
         $this->assertEquals($page, $request->page);
         $this->assertEquals($type, $request->type);
         $this->assertEquals($resolution, $request->resolution);
+    }
+
+    /**
+     * @return list<list<int|string>>
+     */
+    public static function providerFilePathAndPage(): array
+    {
+        $provider = [
+            [__DIR__.'/files/label.pdf', 1],
+        ];
+
+        return $provider;
     }
 }
