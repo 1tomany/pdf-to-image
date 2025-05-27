@@ -4,10 +4,10 @@ namespace OneToMany\PdfToImage\Exception;
 
 use function sprintf;
 
-final class ReadingPdfInfoFailedException extends \RuntimeException implements ExceptionInterface
+final class ReadingPdfInfoFailedException extends BinaryProcessFailedException
 {
-    public function __construct(string $file, ?\Throwable $previous = null, int $code = 0)
+    public function __construct(string $file, ?string $error = null, ?\Throwable $previous = null, int $code = 0)
     {
-        parent::__construct(sprintf('An error occurred when attempting to read the info for the file "%s".', $file), $code, $previous);
+        parent::__construct(sprintf('An error occurred when attempting to read the info for file "%s".', $file), $error, $previous, $code);
     }
 }

@@ -26,12 +26,16 @@ readonly class PdfInfoService
     public function read(string $file): PdfInfo
     {
         try {
-            $output = new Process([$this->binary, $file])->mustRun()->getOutput();
+            $process = new Process([
+                $this->binary, $file,
+            ]);
+
+            $info = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new ReadingPdfInfoFailedException($file, $e);
+            throw new ReadingPdfInfoFailedException($file, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
-        foreach (explode("\n", $output) as $infoBit) {
+        foreach (explode("\n", $info) as $infoBit) {
             if (str_contains($infoBit, ':')) {
                 $bits = explode(':', $infoBit);
 

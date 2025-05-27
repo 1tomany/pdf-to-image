@@ -1,0 +1,17 @@
+<?php
+
+namespace OneToMany\PdfToImage\Exception;
+
+use function explode;
+use function rtrim;
+use function sprintf;
+
+class BinaryProcessFailedException extends RuntimeException
+{
+    public function __construct(string $message, ?string $error = null, ?\Throwable $previous = null, int $code = 0)
+    {
+        $error = explode(PHP_EOL, $error ?? '')[0] ?: null;
+
+        parent::__construct(null === $error ? $message : sprintf('%s: %s.', rtrim($message, '.'), rtrim($error, '.')), $previous, $code);
+    }
+}

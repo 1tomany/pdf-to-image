@@ -26,6 +26,7 @@ final class PdfInfoServiceTest extends TestCase
     public function testReadingInfoRequiresValidPdfFile(): void
     {
         $this->expectException(ReadingPdfInfoFailedException::class);
+        $this->expectExceptionMessageMatches('/Syntax Warning: May not be a PDF file \(continuing anyway\)/');
 
         new PdfInfoService()->read(__FILE__);
     }
