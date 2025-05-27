@@ -12,7 +12,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Large;
 use PHPUnit\Framework\TestCase;
 
-use function pathinfo;
 use function random_int;
 use function sha1;
 
@@ -35,10 +34,7 @@ final class PopplerRasterServiceTest extends TestCase
     {
         $this->expectException(RasterizingPdfFailedException::class);
 
-        $fileInfo = pathinfo($filePath = __FILE__);
-        $this->assertNotEquals('pdf', $fileInfo['extension'] ?? null);
-
-        new PopplerRasterService()->rasterize(new RasterizeFileRequest($filePath));
+        new PopplerRasterService()->rasterize(new RasterizeFileRequest(__FILE__));
     }
 
     public function testRasterizationRequiresValidPageNumber(): void

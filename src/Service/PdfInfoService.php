@@ -4,7 +4,7 @@ namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Exception\ReadingPdfInfoFailedException;
 use OneToMany\PdfToImage\Helper\BinaryFinder;
-use OneToMany\PdfToImage\Record\PdfData;
+use OneToMany\PdfToImage\Record\PdfInfo;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
@@ -23,7 +23,7 @@ readonly class PdfInfoService
         $this->binary = BinaryFinder::find($binary);
     }
 
-    public function read(string $file): PdfData
+    public function read(string $file): PdfInfo
     {
         try {
             $process = new Process([
@@ -45,6 +45,6 @@ readonly class PdfInfoService
             }
         }
 
-        return new PdfData($pages ?? 1);
+        return new PdfInfo($pages ?? 1);
     }
 }
