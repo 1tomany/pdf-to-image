@@ -32,27 +32,23 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             'imageType' => $request->imageType,
         ]);
 
-        $shellCommandLine = vsprintf('%s -q -f "%s" "%s" -r "%s" "%s"', [
-            $this->binary, '${:PAGE}', '${:TYPE}', '${:RES}', '${:PATH}',
-        ]);
-
         try {
-            $process = Process::fromShellCommandline(...[
-                'command' => $shellCommandLine,
+            $process = new Process([
+                $this->binary,
+                '-q',
+                '-f',
+                $request->pageNumber,
+                '-r',
+                $request->resolution,
+                $imageTypeArgument,
+                $request->filePath,
             ]);
         } catch (ProcessExceptionInterface $e) {
             throw new RuntimeException('The pdftoppm binary could not be executed because PHP was not compiled with the "proc_open" function.', $e);
         }
 
         try {
-            $process->mustRun(null, [
-                'PAGE' => $request->pageNumber,
-                'TYPE' => $imageTypeArgument,
-                'RES' => $request->resolution,
-                'PATH' => $request->filePath,
-            ]);
-
-            $image = $process->getOutput();
+            $image = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
             throw new RasterizationFailedException($request->filePath, $process->getErrorOutput(), $e);
         }
