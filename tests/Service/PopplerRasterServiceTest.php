@@ -58,14 +58,14 @@ final class PopplerRasterServiceTest extends TestCase
         int $page,
         ImageType $type,
         int $resolution,
-        string $sha1,
+        string $sha1Hash,
     ): void {
         $request = new RasterizeFileRequest(
             $file, $page, $type, $resolution
         );
 
         $data = new PopplerRasterService()->rasterize($request);
-        $this->assertEquals($sha1, sha1($data->__toString()));
+        $this->assertEquals($sha1Hash, sha1($data->__toString()));
     }
 
     /**
