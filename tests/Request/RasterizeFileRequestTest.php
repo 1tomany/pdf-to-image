@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+use function array_rand;
 use function random_int;
 
 use const PHP_INT_MAX;
@@ -56,7 +57,7 @@ final class RasterizeFileRequestTest extends TestCase
     public function testConstructor(string $filePath, int $page): void
     {
         $type = ImageType::cases()[
-            \array_rand(ImageType::cases())
+            array_rand(ImageType::cases())
         ];
 
         $resolution = random_int(48, 300);
