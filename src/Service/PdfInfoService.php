@@ -23,16 +23,16 @@ readonly class PdfInfoService
         $this->binary = BinaryFinder::find($binary);
     }
 
-    public function read(string $file): PdfInfo
+    public function read(string $filePath): PdfInfo
     {
         try {
             $process = new Process([
-                $this->binary, $file,
+                $this->binary, $filePath,
             ]);
 
             $info = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new ReadingPdfInfoFailedException($file, isset($process) ? $process->getErrorOutput() : null, $e);
+            throw new ReadingPdfInfoFailedException($filePath, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
         foreach (explode("\n", $info) as $infoBit) {

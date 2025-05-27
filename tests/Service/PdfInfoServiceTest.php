@@ -31,17 +31,16 @@ final class PdfInfoServiceTest extends TestCase
         new PdfInfoService()->read(__FILE__);
     }
 
-    #[DataProvider('providerFileAndPages')]
-    public function testReadingPdfInfo(string $file, int $pages): void
+    #[DataProvider('providerFilePathAndPages')]
+    public function testReadingPdfInfo(string $filePath, int $pages): void
     {
-        $pdfInfo = new PdfInfoService()->read($file);
-        $this->assertEquals($pages, $pdfInfo->pages);
+        $this->assertEquals($pages, new PdfInfoService()->read($filePath)->pages);
     }
 
     /**
      * @return list<list<int|string>>
      */
-    public static function providerFileAndPages(): array
+    public static function providerFilePathAndPages(): array
     {
         $provider = [
             [__DIR__.'/files/pages-1.pdf', 1],

@@ -7,6 +7,7 @@ use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 
 use function is_file;
 use function is_readable;
+use function sprintf;
 
 final readonly class RasterizeFileRequest
 {
@@ -14,17 +15,17 @@ final readonly class RasterizeFileRequest
     private const int MAX_RESOLUTION = 300;
 
     public function __construct(
-        public string $file,
+        public string $filePath,
         public int $page = 1,
-        public ImageType $type = ImageType::Jpeg,
+        public ImageType $type = ImageType::Png,
         public int $resolution = 150,
     ) {
-        if (!is_file($this->file) || !is_readable($this->file)) {
-            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->file));
+        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
+            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
         }
 
         if ($this->page < 1) {
-            throw new InvalidArgumentException('The page number must be an integer greater than 0.');
+            throw new InvalidArgumentException('The page number must be a positive non-zero integer.');
         }
 
         if ($this->resolution < self::MIN_RESOLUTION || $this->resolution > self::MAX_RESOLUTION) {

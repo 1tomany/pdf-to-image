@@ -24,38 +24,28 @@ final readonly class PopplerRasterService implements RasterServiceInterface
      */
     public function rasterize(RasterizeFileRequest $request): RasterData
     {
-        // Construct the `pdftoppm` Command
-        $imageTypeArgument = $this->resolveImageType(...[
-            'imageType' => $request->type,
-        ]);
-
         try {
+            $imageTypeArg = match ($request->type) {
+                ImageType::Jpeg => '-jpeg',
+                ImageType::Png => '-png',
+            };
+
             $process = new Process([
                 $this->binary,
                 '-q',
+                $imageTypeArg,
                 '-f',
                 $request->page,
                 '-r',
                 $request->resolution,
-                $imageTypeArgument,
-                $request->file,
+                $request->filePath,
             ]);
 
             $image = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new RasterizingPdfFailedException($request->file, $request->page, isset($process) ? $process->getErrorOutput() : null, $e);
+            throw new RasterizingPdfFailedException($request->filePath, $request->page, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
         return new RasterData($request->type->mimeType(), $image);
-    }
-
-    private function resolveImageType(ImageType $imageType): string
-    {
-        $imageType = match ($imageType) {
-            ImageType::Jpeg => '-jpeg',
-            ImageType::Png => '-png',
-        };
-
-        return $imageType;
     }
 }
