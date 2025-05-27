@@ -32,6 +32,18 @@ readonly class PdfInfo
             //throw new RasterizationFailedException($request->filePath, $process->getErrorOutput(), $e);
         }
 
-        return new PdfData();
+        $pages = 1;
+
+        foreach (\explode("\n", $info) as $bit) {
+            if (\str_starts_with($bit, 'Pages:')) {
+                $bit = \trim(\substr($bit, 6));
+
+                if (\is_numeric($bit)) {
+                    $pages = \intval($bit);
+                }
+            }
+        }
+
+        return new PdfData($pages);
     }
 }
