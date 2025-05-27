@@ -7,13 +7,11 @@ use OneToMany\PdfToImage\Record\PdfData;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
-use function count;
 use function explode;
 use function intval;
+use function str_contains;
 use function strcmp;
 use function trim;
-
-use const PHP_EOL;
 
 readonly class PdfInfo
 {
@@ -37,7 +35,7 @@ readonly class PdfInfo
         }
 
         foreach (explode("\n", $info) as $infoBit) {
-            if (\str_contains($infoBit, ':')) {
+            if (str_contains($infoBit, ':')) {
                 $bits = explode(':', $infoBit);
 
                 if (0 === strcmp('Pages', $bits[0])) {

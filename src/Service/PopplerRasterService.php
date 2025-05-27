@@ -4,7 +4,6 @@ namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\RasterizationFailedException;
-use OneToMany\PdfToImage\Exception\RuntimeException;
 use OneToMany\PdfToImage\Helper\BinaryFinder;
 use OneToMany\PdfToImage\Record\RasterData;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
