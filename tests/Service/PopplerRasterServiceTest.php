@@ -52,38 +52,30 @@ final class PopplerRasterServiceTest extends TestCase
         new PopplerRasterService()->rasterize(new RasterizeFileRequest($filePath, $pageNumber));
     }
 
-    #[DataProvider('providerFileNameImageTypeResolutionAndSha1Hash')]
-    public function testRasterizingFirstPage(
-        string $fileName,
-        ImageType $imageType,
-        int $resolution,
-        string $sha1Hash,
-    ): void {
-        $filePath = __DIR__.'/files/'.$fileName;
+    #[DataProvider('providerFilePageTypeDpiAndSha1Hash')]
+    public function testRasterizingFirstPage(string $file, int $page, ImageType $type, int $dpi, string $sha1): void
+    {
+        $file = __DIR__.'/files/'.$file;
 
-        $request = new RasterizeFileRequest(...[
-            'filePath' => $filePath,
-            'imageType' => $imageType,
-            'resolution' => $resolution,
-        ]);
-
-        $this->assertEquals(1, $request->pageNumber);
+        $request = new RasterizeFileRequest(
+            $file, $page, $type, $dpi
+        );
 
         $data = new PopplerRasterService()->rasterize($request);
-        $this->assertEquals($sha1Hash, sha1($data->__toString()));
+        $this->assertEquals($sha1, sha1($data->__toString()));
     }
 
     /**
      * @return list<list<int|string|ImageType>>
      */
-    public static function providerFileNameImageTypeResolutionAndSha1Hash(): array
+    public static function providerFilePageTypeDpiAndSha1Hash(): array
     {
         $provider = [
-            ['pages-1.pdf', ImageType::Jpeg, 150, 'bfbfea39b881befa7e0af249f4fff08592d1ff56'],
-            ['pages-2.pdf', ImageType::Jpeg, 300, 'f8b755881dc51980e8a9b4bb147a9c1388f91768'],
-            ['pages-2.pdf', ImageType::Png, 150, 'ba1276ebf1e1cbd934e3f9b54a6659678ad4f918'],
-            ['pages-3.pdf', ImageType::Jpeg, 72, '5ff2aaa08133b6129371a3f61d96c1522626c974'],
-            ['pages-4.pdf', ImageType::Png, 72, 'cd49f354f52895745b94845bfd7261e01a5458d9'],
+            ['pages-1.pdf', 1, ImageType::Jpeg, 150, 'bfbfea39b881befa7e0af249f4fff08592d1ff56'],
+            ['pages-2.pdf', 1, ImageType::Jpeg, 300, 'f8b755881dc51980e8a9b4bb147a9c1388f91768'],
+            ['pages-2.pdf', 1, ImageType::Png, 150, 'ba1276ebf1e1cbd934e3f9b54a6659678ad4f918'],
+            ['pages-3.pdf', 1, ImageType::Jpeg, 72, '5ff2aaa08133b6129371a3f61d96c1522626c974'],
+            ['pages-4.pdf', 1, ImageType::Png, 72, 'cd49f354f52895745b94845bfd7261e01a5458d9'],
         ];
 
         return $provider;

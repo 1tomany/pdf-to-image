@@ -27,7 +27,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
     {
         // Construct the `pdftoppm` Command
         $imageTypeArgument = $this->resolveImageType(...[
-            'imageType' => $request->imageType,
+            'imageType' => $request->type,
         ]);
 
         try {
@@ -35,11 +35,11 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 $this->binary,
                 '-q',
                 '-f',
-                $request->pageNumber,
+                $request->page,
                 '-r',
-                $request->resolution,
+                $request->dpi,
                 $imageTypeArgument,
-                $request->filePath,
+                $request->file,
             ]);
         } catch (ProcessExceptionInterface $e) {
             throw new RuntimeException('The pdftoppm binary could not be executed because PHP was not compiled with the "proc_open" function.', $e);
@@ -48,10 +48,10 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         try {
             $image = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new RasterizationFailedException($request->filePath, $process->getErrorOutput(), $e);
+            throw new RasterizationFailedException($request->file, $process->getErrorOutput(), $e);
         }
 
-        return new RasterData($request->imageType->mimeType(), $image);
+        return new RasterData($request->type->mimeType(), $image);
     }
 
     private function resolveImageType(ImageType $imageType): string

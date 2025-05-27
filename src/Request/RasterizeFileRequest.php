@@ -14,20 +14,20 @@ final readonly class RasterizeFileRequest
     private const int MAX_RESOLUTION = 300;
 
     public function __construct(
-        public string $filePath,
-        public int $pageNumber = 1,
-        public ImageType $imageType = ImageType::Jpeg,
-        public int $resolution = 150,
+        public string $file,
+        public int $page = 1,
+        public ImageType $type = ImageType::Jpeg,
+        public int $dpi = 150,
     ) {
-        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
-            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
+        if (!is_file($this->file) || !is_readable($this->file)) {
+            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->file));
         }
 
-        if ($this->pageNumber < 1) {
+        if ($this->page < 1) {
             throw new InvalidArgumentException('The page number must be an integer greater than 0.');
         }
 
-        if ($this->resolution < self::MIN_RESOLUTION || $this->resolution > self::MAX_RESOLUTION) {
+        if ($this->dpi < self::MIN_RESOLUTION || $this->dpi > self::MAX_RESOLUTION) {
             throw new InvalidArgumentException(sprintf('The resolution must be an integer between %d and %d.', self::MIN_RESOLUTION, self::MAX_RESOLUTION));
         }
     }
