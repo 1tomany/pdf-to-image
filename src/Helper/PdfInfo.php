@@ -2,6 +2,7 @@
 
 namespace OneToMany\PdfToImage\Helper;
 
+use OneToMany\PdfToImage\Exception\ReadingInfoFailedException;
 use OneToMany\PdfToImage\Record\PdfData;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
@@ -23,35 +24,28 @@ readonly class PdfInfo
         $this->binary = BinaryFinder::find($binary);
     }
 
-    public function read(string $filePath): PdfData
+    public function read(string $file): PdfData
     {
         try {
-            $process = new Process([$this->binary, $filePath])->mustRun();
+            $process = new Process([
+                $this->binary, $file,
+            ]);
+
+            $info = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new \RuntimeException('no good proc_open()', 500, $e);
+            throw new ReadingInfoFailedException($e, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
-        try {
-            $pdfInfo = $process->getOutput();
-        } catch (ProcessExceptionInterface $e) {
-            throw new \RuntimeException('no good output', 500, $e);
-            // throw new RasterizationFailedException($request->filePath, $process->getErrorOutput(), $e);
-        }
+        foreach (explode("\n", $info) as $infoBit) {
+            if (\str_contains($infoBit, ':')) {
+                $bits = explode(':', $infoBit);
 
-        $pageCount = 1;
-
-        foreach (explode(PHP_EOL, $pdfInfo) as $infoBit) {
-            $bits = explode(':', $infoBit, 2);
-
-            if (2 !== count($bits)) {
-                continue;
-            }
-
-            if (0 === strcmp('Pages', $bits[0])) {
-                $pageCount = intval(trim($bits[1]));
+                if (0 === strcmp('Pages', $bits[0])) {
+                    $pages = intval(trim($bits[1]));
+                }
             }
         }
 
-        return new PdfData($pageCount);
+        return new PdfData($pages ?? 1);
     }
 }
