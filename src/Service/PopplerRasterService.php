@@ -11,8 +11,6 @@ use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
-use function vsprintf;
-
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
     private string $binary;
