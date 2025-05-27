@@ -1,8 +1,9 @@
 <?php
 
-namespace OneToMany\PdfToImage\Helper;
+namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Exception\ReadingInfoFailedException;
+use OneToMany\PdfToImage\Helper\BinaryFinder;
 use OneToMany\PdfToImage\Record\PdfData;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
@@ -13,7 +14,7 @@ use function str_contains;
 use function strcmp;
 use function trim;
 
-readonly class PdfInfo
+readonly class PdfInfoService
 {
     private string $binary;
 
