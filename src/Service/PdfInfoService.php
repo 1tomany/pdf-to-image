@@ -2,7 +2,7 @@
 
 namespace OneToMany\PdfToImage\Service;
 
-use OneToMany\PdfToImage\Exception\ReadingInfoFailedException;
+use OneToMany\PdfToImage\Exception\ReadingPdfInfoFailedException;
 use OneToMany\PdfToImage\Helper\BinaryFinder;
 use OneToMany\PdfToImage\Record\PdfData;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
@@ -32,7 +32,7 @@ readonly class PdfInfoService
 
             $info = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new ReadingInfoFailedException($e, isset($process) ? $process->getErrorOutput() : null, $e);
+            throw new ReadingPdfInfoFailedException($e, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
         foreach (explode("\n", $info) as $infoBit) {

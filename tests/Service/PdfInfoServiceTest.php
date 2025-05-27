@@ -16,7 +16,7 @@ final class PdfInfoServiceTest extends TestCase
     }
 
     /**
-     * @return list<list<int|string|ImageType>>
+     * @return list<list<int|string>>
      */
     public static function providerFileAndPages(): array
     {

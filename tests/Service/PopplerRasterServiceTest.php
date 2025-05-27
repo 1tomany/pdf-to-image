@@ -4,7 +4,7 @@ namespace OneToMany\PdfToImage\Tests\Service;
 
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
-use OneToMany\PdfToImage\Exception\RasterizationFailedException;
+use OneToMany\PdfToImage\Exception\RasterizingPdfFailedException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Service\PopplerRasterService;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -33,7 +33,7 @@ final class PopplerRasterServiceTest extends TestCase
 
     public function testRasterizationRequiresValidPdfFile(): void
     {
-        $this->expectException(RasterizationFailedException::class);
+        $this->expectException(RasterizingPdfFailedException::class);
 
         $fileInfo = pathinfo($filePath = __FILE__);
         $this->assertNotEquals('pdf', $fileInfo['extension'] ?? null);
@@ -43,7 +43,7 @@ final class PopplerRasterServiceTest extends TestCase
 
     public function testRasterizationRequiresValidPageNumber(): void
     {
-        $this->expectException(RasterizationFailedException::class);
+        $this->expectException(RasterizingPdfFailedException::class);
         $this->expectExceptionMessageMatches('/Wrong page range given/');
 
         $pageNumber = random_int(2, 100);

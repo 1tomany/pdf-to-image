@@ -3,7 +3,7 @@
 namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Contract\ImageType;
-use OneToMany\PdfToImage\Exception\RasterizationFailedException;
+use OneToMany\PdfToImage\Exception\RasterizingPdfFailedException;
 use OneToMany\PdfToImage\Helper\BinaryFinder;
 use OneToMany\PdfToImage\Record\RasterData;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
@@ -43,7 +43,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
             $image = $process->mustRun()->getOutput();
         } catch (ProcessExceptionInterface $e) {
-            throw new RasterizationFailedException($request->file, isset($process) ? $process->getErrorOutput() : null, $e);
+            throw new RasterizingPdfFailedException($request->file, $request->page, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
         return new RasterData($request->type->mimeType(), $image);
