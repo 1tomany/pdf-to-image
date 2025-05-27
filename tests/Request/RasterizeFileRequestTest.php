@@ -19,12 +19,12 @@ final class RasterizeFileRequestTest extends TestCase
 {
     public function testConstructorRequiresReadableFile(): void
     {
-        $filePath = __DIR__;
+        $file = __DIR__;
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The input file "'.$filePath.'" does not exist or is not readable.');
+        $this->expectExceptionMessage('The input file "'.$file.'" does not exist or is not readable.');
 
-        new RasterizeFileRequest($filePath);
+        new RasterizeFileRequest($file);
     }
 
     public function testConstructorRequiresPositivePageNumber(): void
@@ -32,7 +32,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The page number must be an integer greater than 0.');
 
-        new RasterizeFileRequest(filePath: __FILE__, pageNumber: 0);
+        new RasterizeFileRequest(file: __FILE__, page: 0);
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMinimumResolution(): void
@@ -40,7 +40,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(1, 47));
+        new RasterizeFileRequest(file: __FILE__, resolution: random_int(1, 47));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMaximumResolution(): void
@@ -48,29 +48,26 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(301, PHP_INT_MAX));
+        new RasterizeFileRequest(file: __FILE__, resolution: random_int(301, PHP_INT_MAX));
     }
 
     public function testConstructor(): void
     {
-        $filePath = __FILE__;
-        $pageNumber = random_int(1, 100);
+        $file = __FILE__;
+        $page = random_int(1, 100);
         $resolution = random_int(48, 300);
 
-        $imageType = ImageType::cases()[
+        $type = ImageType::cases()[
             array_rand(ImageType::cases())
         ];
 
-        $request = new RasterizeFileRequest(...[
-            'filePath' => $filePath,
-            'pageNumber' => $pageNumber,
-            'imageType' => $imageType,
-            'resolution' => $resolution,
-        ]);
+        $request = new RasterizeFileRequest(
+            $file, $page, $type, $resolution
+        );
 
-        $this->assertEquals($filePath, $request->filePath);
-        $this->assertEquals($pageNumber, $request->pageNumber);
-        $this->assertSame($imageType, $request->imageType);
+        $this->assertEquals($file, $request->file);
+        $this->assertEquals($page, $request->page);
+        $this->assertSame($type, $request->type);
         $this->assertEquals($resolution, $request->resolution);
     }
 }
