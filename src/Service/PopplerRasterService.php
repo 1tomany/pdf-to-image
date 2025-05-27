@@ -14,6 +14,7 @@ use Symfony\Component\Process\Process;
 
 use function is_executable;
 use function sprintf;
+use function vsprintf;
 
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
