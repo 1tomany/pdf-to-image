@@ -25,6 +25,9 @@
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5"
     },
+    "suggest": {
+      "1tomany/data-uri": "Provides a file object for converting raster data to a file"
+    },
     "autoload": {
         "psr-4": {
             "OneToMany\\PdfToImage\\": "src/"
