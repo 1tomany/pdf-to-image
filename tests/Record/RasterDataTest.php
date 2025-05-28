@@ -2,9 +2,13 @@
 
 namespace OneToMany\PdfToImage\Tests\Request;
 
+use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Record\RasterData;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+
+use function base64_encode;
+use function file_get_contents;
 
 #[Group('UnitTests')]
 #[Group('RequestTests')]
@@ -14,13 +18,20 @@ final class RasterDataTest extends TestCase
     {
         $text = 'Hello, world!';
 
-        $this->assertEquals($text, new RasterData('text/plain', $text)->__toString());
+        $this->assertEquals($text, new RasterData(ImageType::Jpeg, $text)->__toString());
     }
 
     public function testToDataUri(): void
     {
-        $dataUri = 'data:text/plain;base64,SGVsbG8sIHdvcmxkIQ==';
+        $filePath = __DIR__.'/files/page.png';
+        $this->assertFileExists($filePath);
 
-        $this->assertEquals($dataUri, new RasterData('text/plain', 'Hello, world!')->toDataUri());
+        $bytes = file_get_contents($filePath);
+
+        $this->assertIsString($bytes);
+        $this->assertNotEmpty($bytes);
+
+        $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
+        $this->assertEquals($dataUri, new RasterData(ImageType::Png, $bytes)->toDataUri());
     }
 }

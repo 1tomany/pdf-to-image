@@ -36,6 +36,8 @@ final readonly class PopplerRasterService implements RasterServiceInterface
                 $imageTypeArg,
                 '-f',
                 $request->page,
+                '-l',
+                $request->page,
                 '-r',
                 $request->resolution,
                 $request->filePath,
@@ -46,6 +48,6 @@ final readonly class PopplerRasterService implements RasterServiceInterface
             throw new RasterizingPdfFailedException($request->filePath, $request->page, isset($process) ? $process->getErrorOutput() : null, $e);
         }
 
-        return new RasterData($request->type->mimeType(), $image);
+        return new RasterData($request->type, $image);
     }
 }

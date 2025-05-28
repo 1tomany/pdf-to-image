@@ -17,7 +17,7 @@ final readonly class RasterizeFileRequest
     public function __construct(
         public string $filePath,
         public int $page = 1,
-        public ImageType $type = ImageType::Png,
+        public ImageType $type = ImageType::Jpeg,
         public int $resolution = 150,
     ) {
         if (!is_file($this->filePath) || !is_readable($this->filePath)) {
