@@ -23,7 +23,7 @@ final class RasterDataTest extends TestCase
 
     public function testToDataUri(): void
     {
-        $bytes = file_get_contents(__DIR__.'/files/page.png');
+        $bytes = file_get_contents(__DIR__.'/files/page-1.png');
         $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
 
         $this->assertIsString($bytes);
