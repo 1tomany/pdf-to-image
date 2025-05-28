@@ -49,7 +49,7 @@ final class PopplerRasterServiceTest extends TestCase
     }
 
     #[DataProvider('providerFilePageTypeResolutionAndSha1Hash')]
-    public function testRasterizingFirstPage(
+    public function testRasterizingPage(
         string $file,
         int $page,
         ImageType $type,
@@ -71,10 +71,10 @@ final class PopplerRasterServiceTest extends TestCase
     {
         $provider = [
             [__DIR__.'/files/pages-1.pdf', 1, ImageType::Jpeg, 150, 'bfbfea39b881befa7e0af249f4fff08592d1ff56'],
-            [__DIR__.'/files/pages-2.pdf', 1, ImageType::Jpeg, 300, 'f8b755881dc51980e8a9b4bb147a9c1388f91768'],
-            [__DIR__.'/files/pages-2.pdf', 1, ImageType::Png, 150, 'ba1276ebf1e1cbd934e3f9b54a6659678ad4f918'],
-            [__DIR__.'/files/pages-3.pdf', 1, ImageType::Jpeg, 72, '5ff2aaa08133b6129371a3f61d96c1522626c974'],
-            [__DIR__.'/files/pages-4.pdf', 1, ImageType::Png, 72, 'cd49f354f52895745b94845bfd7261e01a5458d9'],
+            [__DIR__.'/files/pages-2.pdf', 1, ImageType::Jpeg, 300, 'b4f24570eaeda3bc0b2865e7583666ec9cae8cc3'],
+            [__DIR__.'/files/pages-2.pdf', 1, ImageType::Png, 150, '73ee6b53e3c48945095da187be916593e2cbec17'],
+            [__DIR__.'/files/pages-3.pdf', 1, ImageType::Jpeg, 72, '932f94066020ae177c64544c6611441570dc2b50'],
+            [__DIR__.'/files/pages-4.pdf', 1, ImageType::Png, 72, 'a074c43375569c0f8d1b24a9fc7dbc456b5c126d'],
         ];
 
         return $provider;

@@ -2,6 +2,7 @@
 
 namespace OneToMany\PdfToImage\Tests\Request;
 
+use OneToMany\DataUri\SmartFile;
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Record\RasterData;
 use PHPUnit\Framework\Attributes\Group;
@@ -23,16 +24,31 @@ final class RasterDataTest extends TestCase
 
     public function testToDataUri(): void
     {
-        $bytes = file_get_contents(__DIR__.'/files/page-1.png');
-        $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
+        $filePath = __DIR__.'/files/page.png';
+        $this->assertFileExists($filePath);
+
+        $bytes = file_get_contents($filePath);
 
         $this->assertIsString($bytes);
         $this->assertNotEmpty($bytes);
 
+        $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
         $this->assertEquals($dataUri, new RasterData(ImageType::Png, $bytes)->toDataUri());
     }
 
     public function testToSmartFile(): void
     {
+        $filePath = __DIR__.'/files/page.png';
+        $this->assertFileExists($filePath);
+
+        $bytes = file_get_contents($filePath);
+
+        $this->assertIsString($bytes);
+        $this->assertNotEmpty($bytes);
+
+        $file = new SmartFile($filePath, null, 'image/png', null, null, true, false);
+
+        $data = new RasterData(ImageType::Png, $bytes);
+        $this->assertTrue($file->equals($data->toSmartFile()));
     }
 }
