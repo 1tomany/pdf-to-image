@@ -28,12 +28,12 @@ final readonly class RasterData implements \Stringable
         return sprintf('data:%s;base64,%s', $this->type->contentType(), base64_encode($this->bytes));
     }
 
-    public function toSmartFile(): SmartFile
+    public function toSmartFile(): SmartFile // @phpstan-ignore-line
     {
         if (!class_exists(SmartFile::class)) {
             throw new RuntimeException('The raster data can not be converted to a SmartFile because the library is not installed. Try running "composer require 1tomany/data-uri".');
         }
 
-        return \OneToMany\DataUri\parse_data($this->toDataUri());
+        return \OneToMany\DataUri\parse_data($this->toDataUri()); // @phpstan-ignore-line
     }
 }
