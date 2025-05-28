@@ -7,6 +7,9 @@ use OneToMany\PdfToImage\Record\RasterData;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+use function base64_encode;
+use function file_get_contents;
+
 #[Group('UnitTests')]
 #[Group('RequestTests')]
 final class RasterDataTest extends TestCase
@@ -20,8 +23,16 @@ final class RasterDataTest extends TestCase
 
     public function testToDataUri(): void
     {
-        $dataUri = 'data:image/jpeg;base64,SGVsbG8sIHdvcmxkIQ==';
+        $bytes = file_get_contents(__DIR__.'/files/page.png');
+        $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
 
-        $this->assertEquals($dataUri, new RasterData(ImageType::Jpeg, 'Hello, world!')->toDataUri());
+        $this->assertIsString($bytes);
+        $this->assertNotEmpty($bytes);
+
+        $this->assertEquals($dataUri, new RasterData(ImageType::Png, $bytes)->toDataUri());
+    }
+
+    public function testToSmartFile(): void
+    {
     }
 }

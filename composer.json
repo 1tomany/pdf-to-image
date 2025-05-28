@@ -21,6 +21,7 @@
         "symfony/process": "^7.2"
     },
     "require-dev": {
+        "1tomany/data-uri": "^4.3",
         "friendsofphp/php-cs-fixer": "^3.75",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5"
