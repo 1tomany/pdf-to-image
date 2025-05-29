@@ -34,7 +34,7 @@ final class PdfInfoServiceTest extends TestCase
     #[DataProvider('providerFilePathAndPages')]
     public function testReadingPdfInfo(string $filePath, int $pages): void
     {
-        $this->assertEquals($pages, new PdfInfoService()->read($filePath)->pages);
+        $this->assertEquals($pages, new PdfInfoService()->read($filePath)->pageCount);
     }
 
     /**

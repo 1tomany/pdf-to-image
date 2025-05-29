@@ -5,7 +5,7 @@ namespace OneToMany\PdfToImage\Record;
 final readonly class PdfInfo
 {
     public function __construct(
-        public int $pages = 1,
+        public int $pageCount = 1,
     ) {
     }
 }
