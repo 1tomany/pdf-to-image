@@ -18,7 +18,11 @@ use function trim;
 
 final readonly class RasterizeFileRequest
 {
+    /**
+     * @var non-empty-string
+     */
     public string $filePath;
+
     public int $firstPage;
     public int $finalPage;
     public ImageType $format;
@@ -36,12 +40,22 @@ final readonly class RasterizeFileRequest
         int $resolution = 150,
         ?string $outputDirectory = null,
     ) {
-        // Validate the PDF File Exists
-        $this->filePath = trim($filePath);
+        // Validate the File Exists
+        $filePath = trim($filePath);
 
-        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
+        if (empty($filePath)) {
+            throw new InvalidArgumentException('no empty file path');
+        }
+
+        if (!is_file($filePath) || !is_readable($filePath)) {
             throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
         }
+
+        if (null !== $outputDirectory && (!is_dir($outputDirectory) || !is_writable($outputDirectory))) {
+            throw new InvalidArgumentException(sprintf('The output directory "%s" does not exist or is not writable.', $outputDirectory));
+        }
+
+        $this->filePath = $filePath;
 
         // Clamp First and Final Page Numbers
         $this->firstPage = max(1, $firstPage);
@@ -57,9 +71,7 @@ final readonly class RasterizeFileRequest
         // Clamp the Output Resolution
         $this->resolution = \max(self::MIN_RESOLUTION, \min(self::MAX_RESOLUTION, $resolution));
 
-        if (null !== $outputDirectory && (!is_dir($outputDirectory) || !is_writable($outputDirectory))) {
-            throw new InvalidArgumentException(sprintf('The output directory "%s" does not exist or is not writable.', $outputDirectory));
-        }
+
 
         $this->outputDirectory = $outputDirectory ?? sprintf('%s/__1n__pdf_pages_%s', sys_get_temp_dir(), bin2hex(random_bytes(4)));
     }
