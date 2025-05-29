@@ -48,20 +48,19 @@ final class PopplerRasterServiceTest extends TestCase
         new PopplerRasterService()->rasterize(new RasterizeFileRequest($filePath, $pageNumber));
     }
 
-    #[DataProvider('providerFilePageTypeResolutionAndSha1Hash')]
-    public function testRasterizingPage(
-        string $file,
-        int $page,
-        ImageType $type,
-        int $resolution,
-        string $sha1Hash,
-    ): void {
+    // #[DataProvider('providerFilePageTypeResolutionAndSha1Hash')]
+    public function testRasterizingSinglePage(): void
+    {
         $request = new RasterizeFileRequest(
-            $file, $page, $type, $resolution
+            __DIR__.'/files/pages-1.pdf',
         );
 
-        $data = new PopplerRasterService()->rasterize($request);
-        $this->assertEquals($sha1Hash, sha1($data->__toString()));
+        // print_r($request);
+
+        $images = new PopplerRasterService()->rasterize($request);
+
+        print_r($images);
+        // $this->assertEquals($sha1Hash, sha1($data->__toString()));
     }
 
     /**

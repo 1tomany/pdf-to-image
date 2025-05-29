@@ -40,6 +40,7 @@ final readonly class PopplerRasterService implements RasterServiceInterface
         //     'FILE' => $request->filePath,
         // ]);
 
+        /*
         for ($page = $request->firstPage; $page <= $request->finalPage; ++$page) {
             try {
                 $process = new Process([
@@ -61,43 +62,45 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
             // $image = $process->mustRun()->getOutput();
         }
+        */
 
-        try {
-            $pageNumber = $request->firstPage;
+        // $this->filesystem->mkdir($request->outputDirectory);
 
-            do {
-                $process = new Process([
-                    $this->binary,
-                    '-q',
-                    $format,
-                    '-f',
-                    $pageNumber,
-                    '-l',
-                    $pageNumber,
-                    '-r',
-                    $request->resolution,
-                    $request->filePath,
-                ]);
+        $pageNumber = $request->firstPage;
 
-                $image = $process->mustRun()->getOutput();
+        do {
+            $process = new Process([
+                $this->binary,
+                '-q',
+                $format,
+                '-f',
+                $pageNumber,
+                '-l',
+                $pageNumber,
+                '-r',
+                $request->resolution,
+                $request->filePath,
+            ]);
 
-                $filePath = $this->filesystem->tempnam(
-                    $request->getOutputDirectory(),
-                    $request->createFilePrefix($pageNumber),
-                    $request->format->fileSuffix()
-                );
+            $image = $process->mustRun()->getOutput();
 
-                $this->filesystem->dumpFile($filePath, $image);
+            $filePath = $this->filesystem->tempnam(
+                $request->outputDirectory,
+                sprintf('page-%d', $pageNumber),
+                $request->format->fileSuffix()
+            );
 
-                $rasterImages[] = new RasterImage(
-                    $filePath, $request->format
-                );
+            $this->filesystem->dumpFile($filePath, $image);
 
-                ++$pageNumber;
-            } while ($pageNumber <= $request->finalPage);
-        } catch (ProcessExceptionInterface $e) {
-            throw new RasterizingPdfFailedException($request->filePath, $request->firstPage, isset($process) ? $process->getErrorOutput() : null, $e);
-        }
+            $rasterImages[] = new RasterImage(
+                $filePath, $pageNumber, $request->format
+            );
+
+            ++$pageNumber;
+        } while ($pageNumber <= $request->finalPage);
+        // } catch (ProcessExceptionInterface $e) {
+        //     throw new RasterizingPdfFailedException($request->filePath, $request->firstPage, isset($process) ? $process->getErrorOutput() : null, $e);
+        // }
 
         return $rasterImages;
     }
