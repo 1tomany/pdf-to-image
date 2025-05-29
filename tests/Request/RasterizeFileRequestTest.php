@@ -68,7 +68,7 @@ final class RasterizeFileRequestTest extends TestCase
 
         $this->assertEquals($filePath, $request->filePath);
         $this->assertEquals($page, $request->firstPage);
-        $this->assertEquals($type, $request->type);
+        $this->assertEquals($type, $request->format);
         $this->assertEquals($resolution, $request->resolution);
     }
 

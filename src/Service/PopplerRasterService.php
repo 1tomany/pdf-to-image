@@ -11,8 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
-use function sys_get_temp_dir;
-
 final readonly class PopplerRasterService implements RasterServiceInterface
 {
     private Filesystem $filesystem;
@@ -31,19 +29,47 @@ final readonly class PopplerRasterService implements RasterServiceInterface
     {
         $rasterImages = [];
 
-        try {
-            $imageType = match ($request->type) {
-                ImageType::Jpeg => '-jpeg',
-                ImageType::Png => '-png',
-            };
+        $format = match ($request->format) {
+            ImageType::Jpeg => '-jpeg',
+            ImageType::Png => '-png',
+        };
 
+        // $process = Process::fromShellCommandline(\sprintf('%s -q "${:FORMAT}" -f "${:PAGE}" -l "${:PAGE}" -r "${:DPI}" "${:FILE}"', $this->binary), null, [
+        //     'FORMAT' => $format,
+        //     'DPI' => $request->resolution,
+        //     'FILE' => $request->filePath,
+        // ]);
+
+        for ($page = $request->firstPage; $page <= $request->finalPage; ++$page) {
+            try {
+                $process = new Process([
+                    $this->binary,
+                    '-q',
+                    $format,
+                    '-f',
+                    $page,
+                    '-l',
+                    $page,
+                    '-r',
+                    $request->resolution,
+                    $request->filePath,
+                ]);
+
+                $image = $process->mustRun()->getOutput();
+            } catch (ProcessExceptionInterface $e) {
+            }
+
+            // $image = $process->mustRun()->getOutput();
+        }
+
+        try {
             $pageNumber = $request->firstPage;
 
             do {
                 $process = new Process([
                     $this->binary,
                     '-q',
-                    $imageType,
+                    $format,
                     '-f',
                     $pageNumber,
                     '-l',
@@ -55,14 +81,20 @@ final readonly class PopplerRasterService implements RasterServiceInterface
 
                 $image = $process->mustRun()->getOutput();
 
-                $filePath = $this->filesystem->tempnam($request->outputDirectory ?? sys_get_temp_dir(), '__1n__pdf_page_', $request->type->fileSuffix());
+                $filePath = $this->filesystem->tempnam(
+                    $request->getOutputDirectory(),
+                    $request->createFilePrefix($pageNumber),
+                    $request->format->fileSuffix()
+                );
 
                 $this->filesystem->dumpFile($filePath, $image);
 
-                $rasterImages[] = new RasterImage($filePath, $request->type);
+                $rasterImages[] = new RasterImage(
+                    $filePath, $request->format
+                );
 
                 ++$pageNumber;
-            } while ($pageNumber <= $request->lastPage);
+            } while ($pageNumber <= $request->finalPage);
         } catch (ProcessExceptionInterface $e) {
             throw new RasterizingPdfFailedException($request->filePath, $request->firstPage, isset($process) ? $process->getErrorOutput() : null, $e);
         }
