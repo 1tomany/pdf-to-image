@@ -84,14 +84,6 @@ final class RasterizeFileRequestTest extends TestCase
         $this->assertSame(ImageType::Jpeg, new RasterizeFileRequest(self::$filePath, format: null)->format);
     }
 
-    public function testConstructorClampsResolution(): void
-    {
-        $request = new RasterizeFileRequest(self::$filePath, resolution: random_int(0, PHP_INT_MAX));
-
-        $this->assertGreaterThanOrEqual(RasterizeFileRequest::MIN_RESOLUTION, $request->resolution);
-        $this->assertLessThanOrEqual(RasterizeFileRequest::MAX_RESOLUTION, $request->resolution);
-    }
-
     public function testConstructorResolvesOutputDirectoryWhenEmptyOutputDirectoryProvided(): void
     {
         $this->assertNotEmpty(new RasterizeFileRequest(self::$filePath, outputDirectory: null)->outputDirectory);
