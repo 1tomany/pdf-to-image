@@ -31,9 +31,9 @@ final readonly class RasterizeFileRequest
 
     public function __construct(
         string $filePath,
+        ?ImageType $format = null,
         int $firstPage = 1,
         int $finalPage = 1,
-        ?ImageType $format = null,
         int $resolution = 150,
         ?string $outputDirectory = null,
     ) {

@@ -8,47 +8,25 @@ use OneToMany\PdfToImage\Exception\RuntimeException;
 
 use function base64_encode;
 use function class_exists;
-use function file_exists;
-use function file_get_contents;
 use function sprintf;
-use function unlink;
 
 final readonly class RasterImage implements \Stringable
 {
     public function __construct(
-        public string $filePath,
+        public string $bytes,
         public int $pageNumber,
         public ImageType $format,
-        public bool $selfDestruct = true,
     ) {
-    }
-
-    public function __destruct()
-    {
-        if (true === $this->selfDestruct) {
-            if (file_exists($this->filePath)) {
-                @unlink($this->filePath);
-            }
-        }
     }
 
     public function __toString(): string
     {
-        return $this->filePath;
+        return $this->bytes;
     }
 
     public function toDataUri(): string
     {
-        return sprintf('data:%s;base64,%s', $this->format->contentType(), base64_encode($this->read()));
-    }
-
-    public function read(): string
-    {
-        if (false === $contents = @file_get_contents($this->filePath)) {
-            throw new RuntimeException(sprintf('The raster image file "%s" could not be read because it does not exist.', $this->filePath));
-        }
-
-        return $contents;
+        return sprintf('data:%s;base64,%s', $this->format->contentType(), base64_encode($this->bytes));
     }
 
     public function toSmartFile(): SmartFile // @phpstan-ignore-line
@@ -57,6 +35,6 @@ final readonly class RasterImage implements \Stringable
             throw new RuntimeException('The raster image can not be converted to a SmartFile because the library is not installed. Try running "composer require 1tomany/data-uri".');
         }
 
-        return \OneToMany\DataUri\parse_data($this->filePath); // @phpstan-ignore-line
+        return \OneToMany\DataUri\parse_data($this->toDataUri()); // @phpstan-ignore-line
     }
 }

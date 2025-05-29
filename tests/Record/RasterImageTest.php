@@ -21,18 +21,7 @@ final class RasterImageTest extends TestCase
 
     public function testToString(): void
     {
-        $this->assertEquals(self::$filePath, new RasterImage(self::$filePath, 1, ImageType::Jpeg, false)->__toString());
-    }
-
-    public function testReadingRequiresFilePathToBeReadable(): void
-    {
-        $filePath = __DIR__.'/invalid.file.path';
-        $this->assertFileDoesNotExist($filePath);
-
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The raster image file "'.$filePath.'" could not be read because it does not exist.');
-
-        new RasterImage($filePath, 1, ImageType::Jpeg, false)->read();
+        $this->assertFileEquals(self::$filePath, new RasterImage(self::$filePath, 1, ImageType::Jpeg, false)->__toString());
     }
 
     public function testToDataUri(): void
