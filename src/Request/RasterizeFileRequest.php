@@ -19,19 +19,11 @@ use function trim;
 
 final readonly class RasterizeFileRequest
 {
-    /**
-     * @var non-empty-string
-     */
     public string $filePath;
-
     public int $firstPage;
     public int $finalPage;
     public ImageType $format;
     public int $resolution;
-
-    /**
-     * @var non-empty-string
-     */
     public string $outputDirectory;
 
     public const int MIN_RESOLUTION = 72;
