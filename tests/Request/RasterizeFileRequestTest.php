@@ -5,14 +5,10 @@ namespace OneToMany\PdfToImage\Tests\Request;
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-use function array_rand;
 use function random_int;
-
-use const PHP_INT_MAX;
 
 #[Group('UnitTests')]
 #[Group('RequestTests')]
