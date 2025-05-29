@@ -10,8 +10,6 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 use function array_rand;
-use function assert;
-use function file_exists;
 use function random_int;
 
 use const PHP_INT_MAX;
@@ -20,14 +18,11 @@ use const PHP_INT_MAX;
 #[Group('RequestTests')]
 final class RasterizeFileRequestTest extends TestCase
 {
-    private string $filePath;
+    private static string $filePath;
 
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        $this->filePath = __DIR__.'/files/label.pdf';
-
-        $this->assertFileExists($this->filePath);
-        // assert(file_exists($this->filePath));
+        self::$filePath = __DIR__.'/files/label.pdf';
     }
 
     public function testConstructorRequiresReadableFile(): void
@@ -46,7 +41,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The first page number must be less than or equal to the final page number.');
 
-        new RasterizeFileRequest($this->filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
+        new RasterizeFileRequest(self::$filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMinimumResolution(): void
@@ -54,7 +49,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest($this->filePath, resolution: random_int(1, RasterizeFileRequest::MIN_RESOLUTION+1));
+        new RasterizeFileRequest(self::$filePath, resolution: random_int(1, RasterizeFileRequest::MIN_RESOLUTION+1));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMaximumResolution(): void
@@ -62,7 +57,24 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest($this->filePath, resolution: random_int(RasterizeFileRequest::MAX_RESOLUTION+1, PHP_INT_MAX));
+        new RasterizeFileRequest(self::$filePath, resolution: random_int(RasterizeFileRequest::MAX_RESOLUTION+1, PHP_INT_MAX));
+    }
+
+    public function testConstructorRequiresNonNullOutputDirectoryToExist(): void
+    {
+        $outputDirectory = __DIR__.'/invalid/file-directory';
+        $this->assertDirectoryDoesNotExist($outputDirectory);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The output directory "'.$outputDirectory.'" does not exist or is not writable.');
+
+        new RasterizeFileRequest(self::$filePath, outputDirectory: $outputDirectory);
+    }
+
+    public function testConstructorSetsFormatToJpegByDefault(): void
+    {
+        $request = new RasterizeFileRequest(self::$filePath);
+        $this->assertSame(ImageType::Jpeg, $request->format);
     }
 
     #[DataProvider('providerFilePathAndPage')]
