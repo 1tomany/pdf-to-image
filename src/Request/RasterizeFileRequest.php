@@ -25,8 +25,8 @@ final readonly class RasterizeFileRequest
     public int $resolution;
     public string $outputDirectory;
 
-    public const int MIN_RESOLUTION = 48;
-    public const int MAX_RESOLUTION = 300;
+    private const int MIN_RESOLUTION = 48;
+    private const int MAX_RESOLUTION = 300;
 
     public function __construct(
         string $filePath,
@@ -36,12 +36,14 @@ final readonly class RasterizeFileRequest
         int $resolution = 150,
         ?string $outputDirectory = null,
     ) {
+        // Validate the PDF File Exists
         $this->filePath = trim($filePath);
 
         if (!is_file($this->filePath) || !is_readable($this->filePath)) {
             throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
         }
 
+        // Clamp First and Final Page Numbers
         $this->firstPage = max(1, $firstPage);
         $this->finalPage = max(1, $finalPage);
 
@@ -52,11 +54,8 @@ final readonly class RasterizeFileRequest
         // Resolve the Output Image Format
         $this->format = $format ?? ImageType::Jpeg;
 
-        if ($resolution < self::MIN_RESOLUTION || $resolution > self::MAX_RESOLUTION) {
-            throw new InvalidArgumentException(sprintf('The resolution must be an integer between %d and %d.', self::MIN_RESOLUTION, self::MAX_RESOLUTION));
-        }
-
-        $this->resolution = $resolution;
+        // Clamp the Output Resolution
+        $this->resolution = \max(self::MIN_RESOLUTION, \min(self::MAX_RESOLUTION, $resolution));
 
         if (null !== $outputDirectory && (!is_dir($outputDirectory) || !is_writable($outputDirectory))) {
             throw new InvalidArgumentException(sprintf('The output directory "%s" does not exist or is not writable.', $outputDirectory));
