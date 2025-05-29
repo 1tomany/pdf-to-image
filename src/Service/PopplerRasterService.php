@@ -3,11 +3,9 @@
 namespace OneToMany\PdfToImage\Service;
 
 use OneToMany\PdfToImage\Contract\ImageType;
-use OneToMany\PdfToImage\Exception\RasterizingPdfFailedException;
 use OneToMany\PdfToImage\Helper\BinaryFinder;
 use OneToMany\PdfToImage\Record\RasterImage;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
-use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
 use function vsprintf;
@@ -28,61 +26,29 @@ final readonly class PopplerRasterService implements RasterServiceInterface
     {
         $rasterImages = [];
 
-        $rasterizeCommand = vsprintf('%s -q %s -f "${:PAGE}" -l "${:PAGE}" -r %d "${:FILE}"', [
+        $command = vsprintf('%s -q %s -f "${:PAGE}" -l "${:PAGE}" -r %d "${:FILEPATH}"', [
             $this->binary, $this->getOutputFormat($request->format), $request->resolution,
         ]);
 
-        //var_dump($rasterizeCommand);
+        $process = Process::fromShellCommandline($command, null, [
+            'FILEPATH' => $request->filePath,
+        ]);
 
-        // $format = $this->getOutputFormat(...[
-        //     'format' => $request->format,
-        // ]);
-        $pageNumber = $request->firstPage;
+        $page = $request->firstPage;
 
         do {
-            $process = Process::fromShellCommandline($rasterizeCommand, null, [
-                'FILE' => $request->filePath,
-            ]);
-
             $process->mustRun(null, [
-                'PAGE' => $pageNumber,
+                'PAGE' => $page,
             ]);
 
-            $bytes = $process->getOutput();
+            $output = $process->getOutput();
 
-            $rasterImages[] = new RasterImage($bytes, $request->format, $pageNumber);
+            $rasterImages[] = new RasterImage(
+                $output, $request->format, $page
+            );
 
-            ++$pageNumber;
-        } while ($pageNumber <= $request->finalPage);
-
-        /*
-        for ($pageNumber = $request->firstPage; $pageNumber <= $request->finalPage; ++$pageNumber) {
-            try {
-                $process = new Process([
-                    $this->binary,
-                    '-q',
-                    $format,
-                    '-f',
-                    $pageNumber,
-                    '-l',
-                    $pageNumber,
-                    '-r',
-                    $request->resolution,
-                    $request->filePath,
-                ]);
-
-                $process->mustRun();
-
-                $rasterImages[] = new RasterImage(...[
-                    'bytes' => $process->getOutput(),
-                    'format' => $request->format,
-                    'pageNumber' => $pageNumber,
-                ]);
-            } catch (ProcessExceptionInterface $e) {
-                throw new RasterizingPdfFailedException($request->filePath, $pageNumber, isset($process) ? $process->getErrorOutput() : null, $e);
-            }
-        }
-        */
+            ++$page;
+        } while ($page <= $request->finalPage);
 
         return $rasterImages;
     }
