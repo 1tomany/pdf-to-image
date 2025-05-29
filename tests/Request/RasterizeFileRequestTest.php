@@ -79,10 +79,9 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest(self::$filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
     }
 
-    public function testConstructorResolvesFormatAsJpegWhenNullFormatProvided(): void
+    public function testConstructorResolvesFormatWhenNullFormatProvided(): void
     {
-        $request = new RasterizeFileRequest(self::$filePath);
-        $this->assertSame(ImageType::Jpeg, $request->format);
+        $this->assertSame(ImageType::Jpeg, new RasterizeFileRequest(self::$filePath, format: null)->format);
     }
 
     public function testConstructorClampsResolution(): void
@@ -96,6 +95,5 @@ final class RasterizeFileRequestTest extends TestCase
     public function testConstructorResolvesOutputDirectoryWhenEmptyOutputDirectoryProvided(): void
     {
         $this->assertNotEmpty(new RasterizeFileRequest(self::$filePath, outputDirectory: null)->outputDirectory);
-
     }
 }
