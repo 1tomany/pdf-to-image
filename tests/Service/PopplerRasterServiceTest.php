@@ -13,7 +13,6 @@ use PHPUnit\Framework\Attributes\Large;
 use PHPUnit\Framework\TestCase;
 
 use function random_int;
-use function sha1;
 
 #[Large]
 #[Group('UnitTests')]
@@ -52,15 +51,10 @@ final class PopplerRasterServiceTest extends TestCase
     public function testRasterizingSinglePage(): void
     {
         $request = new RasterizeFileRequest(
-            __DIR__.'/files/pages-1.pdf',
+            __DIR__.'/files/pages-1.pdf'
         );
 
-        // print_r($request);
-
         $images = new PopplerRasterService()->rasterize($request);
-
-        print_r($images);
-        // $this->assertEquals($sha1Hash, sha1($data->__toString()));
     }
 
     /**

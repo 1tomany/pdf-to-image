@@ -5,16 +5,11 @@ namespace OneToMany\PdfToImage\Request;
 use OneToMany\PdfToImage\Contract\ImageType;
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
 
-use function bin2hex;
-use function is_dir;
 use function is_file;
 use function is_readable;
-use function is_writable;
 use function max;
 use function min;
-use function random_bytes;
 use function sprintf;
-use function sys_get_temp_dir;
 use function trim;
 
 final readonly class RasterizeFileRequest
