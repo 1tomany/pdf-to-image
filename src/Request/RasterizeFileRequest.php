@@ -34,7 +34,7 @@ final readonly class RasterizeFileRequest
      */
     public string $outputDirectory;
 
-    public const int MIN_RESOLUTION = 48;
+    public const int MIN_RESOLUTION = 72;
     public const int MAX_RESOLUTION = 300;
 
     public function __construct(

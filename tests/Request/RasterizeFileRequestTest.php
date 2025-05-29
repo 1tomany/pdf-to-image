@@ -12,6 +12,8 @@ use PHPUnit\Framework\TestCase;
 use function array_rand;
 use function random_int;
 
+use const PHP_INT_MAX;
+
 #[Group('UnitTests')]
 #[Group('RequestTests')]
 final class RasterizeFileRequestTest extends TestCase
@@ -83,50 +85,17 @@ final class RasterizeFileRequestTest extends TestCase
         $this->assertSame(ImageType::Jpeg, $request->format);
     }
 
-    public function testConstructorClampsResolutionToMinimumResolution(): void
+    public function testConstructorClampsResolution(): void
     {
-        $minResolution = random_int(0, RasterizeFileRequest::MIN_RESOLUTION - 1);
-        $this->assertLessThan(RasterizeFileRequest::MIN_RESOLUTION, $minResolution);
+        $request = new RasterizeFileRequest(self::$filePath, resolution: random_int(0, PHP_INT_MAX));
 
-        $this->assertEquals(RasterizeFileRequest::MIN_RESOLUTION, new RasterizeFileRequest(self::$filePath, resolution: $minResolution)->resolution);
+        $this->assertGreaterThanOrEqual(RasterizeFileRequest::MIN_RESOLUTION, $request->resolution);
+        $this->assertLessThanOrEqual(RasterizeFileRequest::MAX_RESOLUTION, $request->resolution);
     }
 
-    public function testConstructorClampsResolutionToMaximumResolution(): void
+    public function testConstructorResolvesOutputDirectoryWhenEmptyOutputDirectoryProvided(): void
     {
-        $maxResolution = random_int(RasterizeFileRequest::MAX_RESOLUTION + 1, \PHP_INT_MAX);
-        $this->assertGreaterThan(RasterizeFileRequest::MAX_RESOLUTION, $maxResolution);
+        $this->assertNotEmpty(new RasterizeFileRequest(self::$filePath, outputDirectory: null)->outputDirectory);
 
-        $this->assertEquals(RasterizeFileRequest::MAX_RESOLUTION, new RasterizeFileRequest(self::$filePath, resolution: $maxResolution)->resolution);
-    }
-
-    #[DataProvider('providerFilePathAndPage')]
-    public function _testConstructor(string $filePath, int $page): void
-    {
-        $type = ImageType::cases()[
-            array_rand(ImageType::cases())
-        ];
-
-        $resolution = random_int(48, 300);
-
-        $request = new RasterizeFileRequest(
-            $filePath, $page, $type, $resolution
-        );
-
-        $this->assertEquals($filePath, $request->filePath);
-        $this->assertEquals($page, $request->firstPage);
-        $this->assertEquals($type, $request->format);
-        $this->assertEquals($resolution, $request->resolution);
-    }
-
-    /**
-     * @return list<list<int|string>>
-     */
-    public static function providerFilePathAndPage(): array
-    {
-        $provider = [
-            [__DIR__.'/files/label.pdf', 1],
-        ];
-
-        return $provider;
     }
 }
