@@ -40,17 +40,6 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest($filePath);
     }
 
-    public function testConstructorRequiresNonEmptyOutputDirectoryToExist(): void
-    {
-        $outputDirectory = __DIR__.'/invalid/file-directory';
-        $this->assertDirectoryDoesNotExist($outputDirectory);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The output directory "'.$outputDirectory.'" does not exist or is not writable.');
-
-        new RasterizeFileRequest(self::$filePath, outputDirectory: $outputDirectory);
-    }
-
     public function testConstructorClampsFirstPageNumber(): void
     {
         $firstPage = -1 * random_int(0, 10);
@@ -78,10 +67,5 @@ final class RasterizeFileRequestTest extends TestCase
     public function testConstructorResolvesFormatWhenNullFormatProvided(): void
     {
         $this->assertSame(ImageType::Jpeg, new RasterizeFileRequest(self::$filePath, format: null)->format);
-    }
-
-    public function testConstructorResolvesOutputDirectoryWhenEmptyOutputDirectoryProvided(): void
-    {
-        $this->assertNotEmpty(new RasterizeFileRequest(self::$filePath, outputDirectory: null)->outputDirectory);
     }
 }

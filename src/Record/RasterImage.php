@@ -14,8 +14,8 @@ final readonly class RasterImage implements \Stringable
 {
     public function __construct(
         public string $bytes,
-        public int $pageNumber,
         public ImageType $format,
+        public int $pageNumber = 1,
     ) {
     }
 
