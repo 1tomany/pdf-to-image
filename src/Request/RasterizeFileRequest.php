@@ -11,6 +11,7 @@ use function is_file;
 use function is_readable;
 use function is_writable;
 use function max;
+use function min;
 use function random_bytes;
 use function sprintf;
 use function sys_get_temp_dir;
@@ -27,10 +28,14 @@ final readonly class RasterizeFileRequest
     public int $finalPage;
     public ImageType $format;
     public int $resolution;
+
+    /**
+     * @var non-empty-string
+     */
     public string $outputDirectory;
 
-    private const int MIN_RESOLUTION = 48;
-    private const int MAX_RESOLUTION = 300;
+    public const int MIN_RESOLUTION = 48;
+    public const int MAX_RESOLUTION = 300;
 
     public function __construct(
         string $filePath,
@@ -44,18 +49,21 @@ final readonly class RasterizeFileRequest
         $filePath = trim($filePath);
 
         if (empty($filePath)) {
-            throw new InvalidArgumentException('no empty file path');
-        }
-
-        if (!is_file($filePath) || !is_readable($filePath)) {
-            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
-        }
-
-        if (null !== $outputDirectory && (!is_dir($outputDirectory) || !is_writable($outputDirectory))) {
-            throw new InvalidArgumentException(sprintf('The output directory "%s" does not exist or is not writable.', $outputDirectory));
+            throw new InvalidArgumentException('The input file path can not be empty.');
         }
 
         $this->filePath = $filePath;
+
+        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
+            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
+        }
+
+        // Validate the Output Directory Exists
+        $outputDirectory = trim($outputDirectory ?? '');
+
+        if (!empty($outputDirectory) && (!is_dir($outputDirectory) || !is_writable($outputDirectory))) {
+            throw new InvalidArgumentException(sprintf('The output directory "%s" does not exist or is not writable.', $outputDirectory));
+        }
 
         // Clamp First and Final Page Numbers
         $this->firstPage = max(1, $firstPage);
@@ -69,10 +77,9 @@ final readonly class RasterizeFileRequest
         $this->format = $format ?? ImageType::Jpeg;
 
         // Clamp the Output Resolution
-        $this->resolution = \max(self::MIN_RESOLUTION, \min(self::MAX_RESOLUTION, $resolution));
+        $this->resolution = max(self::MIN_RESOLUTION, min(self::MAX_RESOLUTION, $resolution));
 
-
-
-        $this->outputDirectory = $outputDirectory ?? sprintf('%s/__1n__pdf_pages_%s', sys_get_temp_dir(), bin2hex(random_bytes(4)));
+        // Resolve the Output Directory
+        $this->outputDirectory = $outputDirectory ?: sprintf('%s/__1n__pdf_pages_%s', sys_get_temp_dir(), bin2hex(random_bytes(4)));
     }
 }

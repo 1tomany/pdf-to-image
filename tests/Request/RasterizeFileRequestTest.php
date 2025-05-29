@@ -12,8 +12,6 @@ use PHPUnit\Framework\TestCase;
 use function array_rand;
 use function random_int;
 
-use const PHP_INT_MAX;
-
 #[Group('UnitTests')]
 #[Group('RequestTests')]
 final class RasterizeFileRequestTest extends TestCase
@@ -25,7 +23,15 @@ final class RasterizeFileRequestTest extends TestCase
         self::$filePath = __DIR__.'/files/label.pdf';
     }
 
-    public function testConstructorRequiresReadableFile(): void
+    public function testConstructorRequiresNonEmptyFilePath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The input file path can not be empty.');
+
+        new RasterizeFileRequest('');
+    }
+
+    public function testConstructorRequiresFilePathToBeReadable(): void
     {
         $filePath = __DIR__.'/invalid.file.path';
         $this->assertFileDoesNotExist($filePath);
@@ -36,15 +42,7 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest($filePath);
     }
 
-    public function testConstructorRequiresFirstPageToBeLessThanOrEqualToFinalPage(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The first page number must be less than or equal to the final page number.');
-
-        new RasterizeFileRequest(self::$filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
-    }
-
-    public function testConstructorRequiresNonNullOutputDirectoryToExist(): void
+    public function testConstructorRequiresNonEmptyOutputDirectoryToExist(): void
     {
         $outputDirectory = __DIR__.'/invalid/file-directory';
         $this->assertDirectoryDoesNotExist($outputDirectory);
@@ -55,10 +53,50 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest(self::$filePath, outputDirectory: $outputDirectory);
     }
 
-    public function testConstructorSetsFormatToJpegByDefault(): void
+    public function testConstructorClampsFirstPageNumber(): void
+    {
+        $firstPage = -1 * random_int(0, 10);
+        $this->assertLessThan(1, $firstPage);
+
+        $this->assertEquals(1, new RasterizeFileRequest(self::$filePath, firstPage: $firstPage)->firstPage);
+    }
+
+    public function testConstructorClampsFinalPageNumber(): void
+    {
+        $finalPage = -1 * random_int(0, 10);
+        $this->assertLessThan(1, $finalPage);
+
+        $this->assertEquals(1, new RasterizeFileRequest(self::$filePath, finalPage: $finalPage)->finalPage);
+    }
+
+    public function testConstructorRequiresFirstPageToBeLessThanOrEqualToFinalPage(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The first page number must be less than or equal to the final page number.');
+
+        new RasterizeFileRequest(self::$filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
+    }
+
+    public function testConstructorResolvesFormatAsJpegWhenNullFormatProvided(): void
     {
         $request = new RasterizeFileRequest(self::$filePath);
         $this->assertSame(ImageType::Jpeg, $request->format);
+    }
+
+    public function testConstructorClampsResolutionToMinimumResolution(): void
+    {
+        $minResolution = random_int(0, RasterizeFileRequest::MIN_RESOLUTION - 1);
+        $this->assertLessThan(RasterizeFileRequest::MIN_RESOLUTION, $minResolution);
+
+        $this->assertEquals(RasterizeFileRequest::MIN_RESOLUTION, new RasterizeFileRequest(self::$filePath, resolution: $minResolution)->resolution);
+    }
+
+    public function testConstructorClampsResolutionToMaximumResolution(): void
+    {
+        $maxResolution = random_int(RasterizeFileRequest::MAX_RESOLUTION + 1, \PHP_INT_MAX);
+        $this->assertGreaterThan(RasterizeFileRequest::MAX_RESOLUTION, $maxResolution);
+
+        $this->assertEquals(RasterizeFileRequest::MAX_RESOLUTION, new RasterizeFileRequest(self::$filePath, resolution: $maxResolution)->resolution);
     }
 
     #[DataProvider('providerFilePathAndPage')]
