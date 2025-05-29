@@ -16,14 +16,17 @@ final readonly class RasterImage implements \Stringable
 {
     public function __construct(
         public string $filePath,
-        public ImageType $type,
+        public ImageType $format,
+        public bool $selfDestruct = true
     ) {
     }
 
     public function __destruct()
     {
-        if (file_exists($this->filePath)) {
-            @unlink($this->filePath);
+        if (true === $this->selfDestruct) {
+            if (file_exists($this->filePath)) {
+                @unlink($this->filePath);
+            }
         }
     }
 
@@ -34,7 +37,7 @@ final readonly class RasterImage implements \Stringable
 
     public function toDataUri(): string
     {
-        return sprintf('data:%s;base64,%s', $this->type->contentType(), base64_encode($this->filePath));
+        return sprintf('data:%s;base64,%s', $this->format->contentType(), base64_encode($this->filePath));
     }
 
     public function toSmartFile(): SmartFile // @phpstan-ignore-line
