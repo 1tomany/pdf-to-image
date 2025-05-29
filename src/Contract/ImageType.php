@@ -7,11 +7,21 @@ enum ImageType
     case Jpeg;
     case Png;
 
+    public function fileSuffix(): string
+    {
+        $fileSuffix = match ($this) {
+            self::Jpeg => '.jpeg',
+            self::Png => '.png',
+        };
+
+        return $fileSuffix;
+    }
+
     public function contentType(): string
     {
         $contentType = match ($this) {
-            static::Jpeg => 'image/jpeg',
-            static::Png => 'image/png',
+            self::Jpeg => 'image/jpeg',
+            self::Png => 'image/png',
         };
 
         return $contentType;

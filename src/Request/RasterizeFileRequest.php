@@ -16,16 +16,18 @@ final readonly class RasterizeFileRequest
 
     public function __construct(
         public string $filePath,
-        public int $page = 1,
+        public int $firstPage = 1,
+        public int $lastPage = 1,
         public ImageType $type = ImageType::Jpeg,
         public int $resolution = 150,
+        public ?string $outputDirectory = null,
     ) {
         if (!is_file($this->filePath) || !is_readable($this->filePath)) {
             throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
         }
 
-        if ($this->page < 1) {
-            throw new InvalidArgumentException('The page number must be a positive non-zero integer.');
+        if ($this->firstPage < 1 || $this->firstPage < $this->lastPage) {
+            throw new InvalidArgumentException('The first page number must be a positive non-zero integer and greater than or equal to the last pagenumber .');
         }
 
         if ($this->resolution < self::MIN_RESOLUTION || $this->resolution > self::MAX_RESOLUTION) {

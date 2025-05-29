@@ -2,10 +2,13 @@
 
 namespace OneToMany\PdfToImage\Service;
 
-use OneToMany\PdfToImage\Record\RasterData;
+use OneToMany\PdfToImage\Record\RasterImage;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 
 interface RasterServiceInterface
 {
-    public function rasterize(RasterizeFileRequest $request): RasterData;
+    /**
+     * @return list<RasterImage>
+     */
+    public function rasterize(RasterizeFileRequest $request): array;
 }

@@ -3,7 +3,7 @@
 namespace OneToMany\PdfToImage\Tests\Request;
 
 use OneToMany\PdfToImage\Contract\ImageType;
-use OneToMany\PdfToImage\Record\RasterData;
+use OneToMany\PdfToImage\Record\RasterImage;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +18,7 @@ final class RasterDataTest extends TestCase
     {
         $text = 'Hello, world!';
 
-        $this->assertEquals($text, new RasterData(ImageType::Jpeg, $text)->__toString());
+        $this->assertEquals($text, new RasterImage(ImageType::Jpeg, $text)->__toString());
     }
 
     public function testToDataUri(): void
@@ -32,6 +32,6 @@ final class RasterDataTest extends TestCase
         $this->assertNotEmpty($bytes);
 
         $dataUri = 'data:image/png;base64,'.base64_encode($bytes);
-        $this->assertEquals($dataUri, new RasterData(ImageType::Png, $bytes)->toDataUri());
+        $this->assertEquals($dataUri, new RasterImage(ImageType::Png, $bytes)->toDataUri());
     }
 }

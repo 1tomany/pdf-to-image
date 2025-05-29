@@ -2,7 +2,7 @@
 
 namespace OneToMany\PdfToImage\Action;
 
-use OneToMany\PdfToImage\Record\RasterData;
+use OneToMany\PdfToImage\Record\RasterImage;
 use OneToMany\PdfToImage\Request\RasterizeFileRequest;
 use OneToMany\PdfToImage\Service\RasterServiceInterface;
 
@@ -12,7 +12,10 @@ final readonly class RasterizeFileAction
     {
     }
 
-    public function act(RasterizeFileRequest $request): RasterData
+    /**
+     * @return list<RasterImage>
+     */
+    public function act(RasterizeFileRequest $request): array
     {
         return $this->rasterService->rasterize($request);
     }
