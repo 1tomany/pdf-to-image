@@ -25,8 +25,8 @@ final readonly class RasterizeFileRequest
     public int $resolution;
     public string $outputDirectory;
 
-    private const int MIN_RESOLUTION = 48;
-    private const int MAX_RESOLUTION = 300;
+    public const int MIN_RESOLUTION = 48;
+    public const int MAX_RESOLUTION = 300;
 
     public function __construct(
         string $filePath,
@@ -45,7 +45,7 @@ final readonly class RasterizeFileRequest
         $this->firstPage = max(1, $firstPage);
         $this->finalPage = max(1, $finalPage);
 
-        if ($this->firstPage < $this->finalPage) {
+        if ($this->firstPage > $this->finalPage) {
             throw new InvalidArgumentException('The first page number must be less than or equal to the final page number.');
         }
 

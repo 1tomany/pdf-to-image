@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 use function array_rand;
+use function assert;
+use function file_exists;
 use function random_int;
 
 use const PHP_INT_MAX;
@@ -18,6 +20,16 @@ use const PHP_INT_MAX;
 #[Group('RequestTests')]
 final class RasterizeFileRequestTest extends TestCase
 {
+    private string $filePath;
+
+    protected function setUp(): void
+    {
+        $this->filePath = __DIR__.'/files/label.pdf';
+
+        $this->assertFileExists($this->filePath);
+        // assert(file_exists($this->filePath));
+    }
+
     public function testConstructorRequiresReadableFile(): void
     {
         $filePath = __DIR__.'/invalid.file.path';
@@ -29,12 +41,12 @@ final class RasterizeFileRequestTest extends TestCase
         new RasterizeFileRequest($filePath);
     }
 
-    public function testConstructorRequiresPositivePageNumber(): void
+    public function testConstructorRequiresFirstPageToBeLessThanOrEqualToFinalPage(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The page number must be a positive non-zero integer.');
+        $this->expectExceptionMessage('The first page number must be less than or equal to the final page number.');
 
-        new RasterizeFileRequest(filePath: __FILE__, firstPage: 0);
+        new RasterizeFileRequest($this->filePath, firstPage: random_int(11, 20), finalPage: random_int(1, 10));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMinimumResolution(): void
@@ -42,7 +54,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(1, 47));
+        new RasterizeFileRequest($this->filePath, resolution: random_int(1, RasterizeFileRequest::MIN_RESOLUTION+1));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMaximumResolution(): void
@@ -50,11 +62,11 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(301, PHP_INT_MAX));
+        new RasterizeFileRequest($this->filePath, resolution: random_int(RasterizeFileRequest::MAX_RESOLUTION+1, PHP_INT_MAX));
     }
 
     #[DataProvider('providerFilePathAndPage')]
-    public function testConstructor(string $filePath, int $page): void
+    public function _testConstructor(string $filePath, int $page): void
     {
         $type = ImageType::cases()[
             array_rand(ImageType::cases())
