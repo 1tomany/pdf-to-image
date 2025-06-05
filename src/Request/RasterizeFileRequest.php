@@ -15,13 +15,13 @@ final readonly class RasterizeFileRequest
     private const int MAX_RESOLUTION = 300;
 
     public function __construct(
-        public string $filePath,
+        public string $path,
         public int $page = 1,
         public ImageType $type = ImageType::Png,
         public int $resolution = 150,
     ) {
-        if (!is_file($this->filePath) || !is_readable($this->filePath)) {
-            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->filePath));
+        if (!is_file($this->path) || !is_readable($this->path)) {
+            throw new InvalidArgumentException(sprintf('The input file "%s" does not exist or is not readable.', $this->path));
         }
 
         if ($this->page < 1) {

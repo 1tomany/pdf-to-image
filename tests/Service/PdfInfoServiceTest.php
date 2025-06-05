@@ -3,7 +3,7 @@
 namespace OneToMany\PdfToImage\Tests\Service;
 
 use OneToMany\PdfToImage\Exception\InvalidArgumentException;
-use OneToMany\PdfToImage\Exception\ReadingPdfInfoFailedException;
+use OneToMany\PdfToImage\Exception\ReadingPdfMetadataFailedException;
 use OneToMany\PdfToImage\Service\PdfInfoService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -25,7 +25,7 @@ final class PdfInfoServiceTest extends TestCase
 
     public function testReadingInfoRequiresValidPdfFile(): void
     {
-        $this->expectException(ReadingPdfInfoFailedException::class);
+        $this->expectException(ReadingPdfMetadataFailedException::class);
         $this->expectExceptionMessageMatches('/Syntax Warning: May not be a PDF file \(continuing anyway\)/');
 
         new PdfInfoService()->read(__FILE__);

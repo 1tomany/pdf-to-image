@@ -34,7 +34,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The page number must be a positive non-zero integer.');
 
-        new RasterizeFileRequest(filePath: __FILE__, page: 0);
+        new RasterizeFileRequest(path: __FILE__, page: 0);
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMinimumResolution(): void
@@ -42,7 +42,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(1, 47));
+        new RasterizeFileRequest(path: __FILE__, resolution: random_int(1, 47));
     }
 
     public function testConstructorRequiresResolutionToBeLessThanOrEqualToMaximumResolution(): void
@@ -50,7 +50,7 @@ final class RasterizeFileRequestTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The resolution must be an integer between 48 and 300.');
 
-        new RasterizeFileRequest(filePath: __FILE__, resolution: random_int(301, PHP_INT_MAX));
+        new RasterizeFileRequest(path: __FILE__, resolution: random_int(301, PHP_INT_MAX));
     }
 
     #[DataProvider('providerFilePathAndPage')]
@@ -66,7 +66,7 @@ final class RasterizeFileRequestTest extends TestCase
             $filePath, $page, $type, $resolution
         );
 
-        $this->assertEquals($filePath, $request->filePath);
+        $this->assertEquals($filePath, $request->path);
         $this->assertEquals($page, $request->page);
         $this->assertEquals($type, $request->type);
         $this->assertEquals($resolution, $request->resolution);
